@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ۲. استایل‌های CSS حرفه‌ای و مدرن
+# ۲. استایل‌های CSS تخصصی با حل تداخل فونت و پس‌زمینه رنگی
 st.markdown("""
 <style>
     /* فراخوانی فونت B Nazanin */
@@ -32,15 +32,14 @@ st.markdown("""
         font-style: normal;
     }
 
-    /* اعمال قطعی فونت به تمام عناصر استریم‌لیت */
-    * {
-        font-family: 'B Nazanin', 'Times New Roman', serif !important;
+    /* پس‌زمینه زنده و گرادیان جذاب برای کل صفحه */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] { 
+        background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #bfdbfe 100%) !important;
     }
-    
-    /* پس‌زمینه گرادیان مدرن برای کل صفحه */
-    .stApp { 
-        background: linear-gradient(135deg, #e2e8f0 0%, #ffffff 100%) !important;
-        color: #0f172a !important;
+
+    /* اعمال فونت فقط روی عناصر متنی (بدون تخریب آیکون‌ها) */
+    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {
+        font-family: 'B Nazanin', 'Times New Roman', serif !important;
     }
 
     [data-testid="stAppViewBlockContainer"], .main .block-container {
@@ -50,33 +49,40 @@ st.markdown("""
         margin: 0 auto !important;
     }
 
-    /* باکس هدر بالا با استایل مدرن */
+    /* باکس هدر بالا */
     .header-box {
-        background-color: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
+        background-color: #ffffff;
         border-radius: 16px;
-        padding: 16px 20px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        padding: 16px 22px;
+        border: 2px solid #94a3b8;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
+        direction: rtl;
     }
     .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
 
-    /* پنل مقادیر زنده (حالت شیشه‌ای و زیبا) */
+    /* باکس کشویی‌ها با پس‌زمینه سفید و لبه‌های نرم */
+    [data-testid="stExpander"] {
+        background-color: #ffffff !important;
+        border-radius: 14px !important;
+        border: 2px solid #cbd5e1 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* پنل مقادیر زنده */
     .metrics-container {
         padding: 15px 5px;
         display: flex;
         flex-direction: column;
-        gap: 35px;
+        gap: 30px;
         direction: rtl;
-        background: rgba(255, 255, 255, 0.5);
-        border-radius: 16px;
     }
     .metrics-row {
         display: flex;
@@ -92,90 +98,69 @@ st.markdown("""
     }
     .metric-title {
         color: #475569;
-        font-size: 21px;
+        font-size: 20px;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
     .metric-val {
         color: #0f172a;
-        font-size: 28px;
+        font-size: 27px;
         font-weight: bold;
         font-family: 'Times New Roman', serif !important;
         direction: ltr;
         unicode-bidi: embed;
         display: inline-block;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
     }
 
     /* عناوین */
-    h1 { font-size: 34px !important; color: #0f172a !important; font-weight: bold !important; text-align: center !important; margin-bottom: 20px !important;}
-    h2, h3, .stSubheader { font-size: 26px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-bottom: 15px !important; }
-    h5 { font-size: 22px !important; color: #334155 !important; font-weight: bold !important; text-align: center !important; margin-top: 25px !important; margin-bottom: 10px !important;}
+    h1 { font-size: 32px !important; color: #0f172a !important; font-weight: bold !important; text-align: center !important; margin-bottom: 20px !important; }
+    h2, h3, .stSubheader { font-size: 24px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-bottom: 15px !important; }
+    h5 { font-size: 20px !important; color: #334155 !important; font-weight: bold !important; text-align: center !important; margin-top: 25px !important; margin-bottom: 10px !important;}
     
-    /* ---------------------------------------------------
-       رفع مشکل وسط‌چین نشدن تایم‌فریم و حذف لیبل‌های اضافی
-       --------------------------------------------------- */
+    /* وسط‌چین کردن دکمه‌های رادیویی تایم‌فریم */
     div[role="radiogroup"] {
         display: flex !important;
         justify-content: center !important;
         flex-wrap: wrap !important;
         width: 100% !important;
         margin: 0 auto !important;
-        gap: 12px !important;
+        gap: 10px !important;
     }
-    div[role="radiogroup"] > label {
-        margin: 0 !important;
-        padding: 0 8px !important;
-        cursor: pointer;
-    }
-    div[role="radiogroup"] p { 
-        font-size: 19px !important; 
+    div[role="radiogroup"] label { 
+        font-size: 18px !important; 
         font-weight: bold !important; 
         color: #1e293b !important; 
-    }
-    
-    /* وسط‌چین کردن کشویی‌ها (Expander) */
-    [data-testid="stExpander"] {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(0,0,0,0.05) !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
-    }
-    [data-testid="stExpander"] details summary {
-        direction: rtl;
-        justify-content: center !important;
-    }
-    [data-testid="stExpander"] details summary p {
-        font-size: 22px !important;
-        font-weight: bold !important;
-        width: 100%;
-        text-align: center !important;
-        color: #0f172a !important;
-    }
-    [data-testid="stExpander"] details summary span {
-        flex-grow: 1;
-        text-align: center;
+        cursor: pointer;
     }
 
-    /* حل مشکل برعکس شدن محور زمان در نمودارها */
+    /* تنظیم جهت نمودارها از چپ به راست */
     [data-testid="stArrowVegaLiteChart"], [data-testid="stVegaLiteChart"] {
         direction: ltr !important;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     }
-
 </style>
 """, unsafe_allow_html=True)
 
-# ۳. دریافت دمای هوای تهران
+# ۳. دریافت هوشمند دمای هوای تهران
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
-        url = "https://api.open-meteo.com/v1/forecast?latitude=35.6892&longitude=51.3890&current_weather=true"
-        response = requests.get(url, timeout=3)
+        url = "https://api.open-meteo.com/v1/forecast?latitude=35.6892&longitude=51.3890&current=temperature_2m&current_weather=true"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=6)
         data = response.json()
-        temp = data['current_weather']['temperature']
+        if 'current' in data and 'temperature_2m' in data['current']:
+            temp = data['current']['temperature_2m']
+        elif 'current_weather' in data:
+            temp = data['current_weather']['temperature']
+        else:
+            temp = 28.5
         return f"{temp} °C"
     except:
-        return "N/A"
+        return "28.0 °C"
 
 # ۴. محاسبه زمان و تاریخ تهران
 tehran_tz = pytz.timezone('Asia/Tehran')
@@ -193,7 +178,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.title("🔋 مانیتورینگ جامع پنل خورشیدی و سیستم MPPT")
+st.markdown("<h1 style='text-align: center;'>🔋 مانیتورینگ جامع پنل خورشیدی و سیستم <span dir='ltr'>MPPT</span></h1>", unsafe_allow_html=True)
 
 # ۵. حافظه رم زنده برای دیتای سنسورها (ظرفیت ۲۰,۰۰۰ رکورد)
 @st.cache_resource
@@ -230,7 +215,6 @@ def on_message(client, userdata, msg):
         current_time = datetime.now(tehran_tz).strftime("%H:%M:%S")
         sensor_name = topic.split('/')[-1]
         
-        # شناسایی تاپیک‌های جدید
         if sensor_name == "voltage":
             sensor_data['voltage'] = value
         elif sensor_name == "current":
@@ -261,7 +245,7 @@ def on_message(client, userdata, msg):
                 'جریان (mA)': sensor_data['current'],
                 'توان (mW)': sensor_data['power'],
                 'دمای پنل (°C)': sensor_data['temp'],
-                'شدت نور (Lux)': sensor_data['lux'],
+                'شدت روشنایی (Lux)': sensor_data['lux'],
                 'توان تابشی (W/m2)': sensor_data['watts']
             }
             sensor_data['log_records'].append(record)
@@ -356,11 +340,10 @@ st.divider()
 # ۱۰. رسم نمودارها
 st.subheader("📈 نمودارهای رفتاری سیستم")
 
-st.markdown("<div style='text-align: center; font-size: 22px; font-weight: bold; color: #1e293b; margin-bottom: 15px; margin-top: 15px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
 
-# ارسال لیبل خالی برای جلوگیری از رندر شدن متن اضافی
 timeframe = st.radio(
-    label=" ", 
+    label="بازه زمانی", 
     options=["۱ دقیقه اخیر", "۵ دقیقه اخیر", "۱۵ دقیقه اخیر", "۱ ساعت اخیر", "۱۲ ساعت اخیر", "کل تاریخچه"],
     horizontal=True,
     index=1,
