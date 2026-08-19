@@ -6,8 +6,6 @@ import requests
 from datetime import datetime
 import pytz
 import jdatetime
-import base64
-import os
 
 # ۱. تنظیمات اصلی صفحه
 st.set_page_config(
@@ -17,67 +15,51 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# تابع بارگذاری ایمن تصویر پس‌زمینه (Base64)
-def get_base64_image(image_path):
-    if os.path.exists(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    return ""
-
-img_b64 = get_base64_image("solar.jpg")
-
-if img_b64:
-    # لایه روشن و شفاف کریستالی روی تصویر برای جلوه طبیعی و خوانایی بالا
-    bg_css = f"""
-        background: linear-gradient(rgba(255, 255, 255, 0.25), rgba(240, 245, 250, 0.4)),
-                    url("data:image/jpeg;base64,{img_b64}") no-repeat center center fixed !important;
-        background-size: cover !important;
-    """
-else:
-    bg_css = "background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;"
-
-# ۲. استایل‌های CSS با فونت B Nazanin و اصلاح کادر نمودارها
-st.markdown(f"""
+# ۲. استایل‌های CSS با پس‌زمینه 4K باکیفیت بالا و فونت B Nazanin
+st.markdown("""
 <style>
     /* فراخوانی فونت B Nazanin */
-    @font-face {{
+    @font-face {
         font-family: 'B Nazanin';
         src: url('https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin.woff2') format('woff2');
         font-weight: normal;
         font-style: normal;
-    }}
-    @font-face {{
+    }
+    @font-face {
         font-family: 'B Nazanin';
         src: url('https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin-Bold.woff2') format('woff2');
         font-weight: bold;
         font-style: normal;
-    }}
+    }
 
-    /* اعمال پس‌زمینه روشن و زنده */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{ 
-        {bg_css}
-    }}
+    /* اعمال پس‌زمینه 4K فوق‌العاده باکیفیت با لایه شیشه‌ای روشن */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] { 
+        background: 
+            linear-gradient(rgba(255, 255, 255, 0.28), rgba(240, 245, 250, 0.45)),
+            url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
 
     /* اعمال فونت روی متون */
-    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {{
+    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {
         font-family: 'B Nazanin', 'Times New Roman', serif !important;
-    }}
+    }
 
-    [data-testid="stAppViewBlockContainer"], .main .block-container {{
+    [data-testid="stAppViewBlockContainer"], .main .block-container {
         max-width: 1000px !important;
         padding-top: 1.5rem !important;
         padding-bottom: 3rem !important;
         margin: 0 auto !important;
-    }}
+    }
 
     /* باکس هدر بالا */
-    .header-box {{
+    .header-box {
         background-color: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-radius: 16px;
         padding: 16px 24px;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
@@ -85,57 +67,57 @@ st.markdown(f"""
         flex-wrap: wrap;
         gap: 12px;
         direction: rtl;
-    }}
-    .header-item {{ color: #1e293b; font-size: 19px; font-weight: bold; }}
-    .header-highlight {{ color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }}
+    }
+    .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
+    .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
 
     /* باکس کشویی‌ها */
-    [data-testid="stExpander"] {{
+    [data-testid="stExpander"] {
         background-color: rgba(255, 255, 255, 0.95) !important;
         backdrop-filter: blur(10px) !important;
         border-radius: 16px !important;
         border: 1px solid rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
         margin-bottom: 20px !important;
-    }}
-    [data-testid="stExpander"] details summary {{
+    }
+    [data-testid="stExpander"] details summary {
         direction: rtl;
-    }}
-    [data-testid="stExpander"] details summary p {{
+    }
+    [data-testid="stExpander"] details summary p {
         font-size: 21px !important;
         font-weight: bold !important;
         width: 100%;
         text-align: center !important;
         color: #0f172a !important;
-    }}
+    }
 
     /* پنل مقادیر زنده */
-    .metrics-container {{
+    .metrics-container {
         padding: 15px 5px;
         display: flex;
         flex-direction: column;
         gap: 30px;
         direction: rtl;
-    }}
-    .metrics-row {{
+    }
+    .metrics-row {
         display: flex;
         justify-content: space-around;
         align-items: center;
         flex-wrap: wrap;
         gap: 15px;
-    }}
-    .metric-item {{
+    }
+    .metric-item {
         flex: 1;
         min-width: 150px;
         text-align: center;
-    }}
-    .metric-title {{
+    }
+    .metric-title {
         color: #475569;
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 8px;
-    }}
-    .metric-val {{
+    }
+    .metric-val {
         color: #0f172a;
         font-size: 28px;
         font-weight: bold;
@@ -143,36 +125,36 @@ st.markdown(f"""
         direction: ltr;
         unicode-bidi: embed;
         display: inline-block;
-    }}
+    }
 
-    /* عناوین با رنگ تیره و کنتراست عالی */
-    h1 {{ 
+    /* عناوین با کنتراست شفاف */
+    h1 { 
         font-size: 33px !important; 
         color: #0f172a !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-bottom: 20px !important;
-        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
-    }}
-    h2, h3, .stSubheader {{ 
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+    }
+    h2, h3, .stSubheader { 
         font-size: 26px !important; 
         color: #0f172a !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-bottom: 15px !important;
-        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
-    }}
-    h5 {{ 
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+    }
+    h5 { 
         font-size: 21px !important; 
         color: #1e293b !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-top: 25px !important; 
         margin-bottom: 10px !important;
-    }}
+    }
     
     /* دکمه‌های تایم‌فریم */
-    div[role="radiogroup"] {{
+    div[role="radiogroup"] {
         display: flex !important;
         justify-content: center !important;
         flex-wrap: wrap !important;
@@ -183,28 +165,28 @@ st.markdown(f"""
         backdrop-filter: blur(8px);
         padding: 10px 18px;
         border-radius: 50px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-    }}
-    div[role="radiogroup"] label {{ 
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+    }
+    div[role="radiogroup"] label { 
         font-size: 18px !important; 
         font-weight: bold !important; 
         color: #0f172a !important; 
         cursor: pointer;
-    }}
+    }
 
-    /* اصلاح کامل کادر نمودارها جهت جلوگیری از بیرون‌زدگی گوشه‌ها */
-    div[data-testid="stVegaLiteChart"], div[data-testid="stArrowVegaLiteChart"] {{
+    /* کادر یکدست سفید و تمیز نمودارها */
+    div[data-testid="stVegaLiteChart"], div[data-testid="stArrowVegaLiteChart"] {
         direction: ltr !important;
         background-color: #ffffff !important;
         border-radius: 16px !important;
         padding: 14px !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
         border: 1px solid rgba(226, 232, 240, 0.9) !important;
         overflow: hidden !important;
-    }}
-    div[data-testid="stVegaLiteChart"] summary, div[data-testid="stArrowVegaLiteChart"] summary {{
+    }
+    div[data-testid="stVegaLiteChart"] summary, div[data-testid="stArrowVegaLiteChart"] summary {
         display: none !important;
-    }}
+    }
 </style>
 """, unsafe_allow_html=True)
 
