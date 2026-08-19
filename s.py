@@ -27,15 +27,16 @@ def get_base64_image(image_path):
 img_b64 = get_base64_image("solar.jpg")
 
 if img_b64:
+    # لایه روشن و شفاف کریستالی روی تصویر برای جلوه طبیعی و خوانایی بالا
     bg_css = f"""
-        background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)),
+        background: linear-gradient(rgba(255, 255, 255, 0.25), rgba(240, 245, 250, 0.4)),
                     url("data:image/jpeg;base64,{img_b64}") no-repeat center center fixed !important;
         background-size: cover !important;
     """
 else:
-    bg_css = "background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;"
+    bg_css = "background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;"
 
-# ۲. استایل‌های CSS با فونت B Nazanin و Times New Roman
+# ۲. استایل‌های CSS با فونت B Nazanin و اصلاح کادر نمودارها
 st.markdown(f"""
 <style>
     /* فراخوانی فونت B Nazanin */
@@ -52,7 +53,7 @@ st.markdown(f"""
         font-style: normal;
     }}
 
-    /* اعمال پس‌زمینه عکس برای کل محیط برنامه */
+    /* اعمال پس‌زمینه روشن و زنده */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{ 
         {bg_css}
     }}
@@ -71,12 +72,12 @@ st.markdown(f"""
 
     /* باکس هدر بالا */
     .header-box {{
-        background-color: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(12px);
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border-radius: 16px;
         padding: 16px 24px;
         border: 1px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
@@ -90,11 +91,11 @@ st.markdown(f"""
 
     /* باکس کشویی‌ها */
     [data-testid="stExpander"] {{
-        background-color: rgba(255, 255, 255, 0.94) !important;
-        backdrop-filter: blur(12px) !important;
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
         border-radius: 16px !important;
         border: 1px solid rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
         margin-bottom: 20px !important;
     }}
     [data-testid="stExpander"] details summary {{
@@ -144,31 +145,30 @@ st.markdown(f"""
         display: inline-block;
     }}
 
-    /* عناوین */
+    /* عناوین با رنگ تیره و کنتراست عالی */
     h1 {{ 
         font-size: 33px !important; 
-        color: #ffffff !important; 
+        color: #0f172a !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-bottom: 20px !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
     }}
     h2, h3, .stSubheader {{ 
         font-size: 26px !important; 
-        color: #ffffff !important; 
+        color: #0f172a !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-bottom: 15px !important;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
     }}
     h5 {{ 
         font-size: 21px !important; 
-        color: #ffffff !important; 
+        color: #1e293b !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-top: 25px !important; 
         margin-bottom: 10px !important;
-        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
     }}
     
     /* دکمه‌های تایم‌فریم */
@@ -179,11 +179,11 @@ st.markdown(f"""
         width: 100% !important;
         margin: 0 auto !important;
         gap: 10px !important;
-        background: rgba(255, 255, 255, 0.94);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(8px);
         padding: 10px 18px;
         border-radius: 50px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
     }}
     div[role="radiogroup"] label {{ 
         font-size: 18px !important; 
@@ -192,14 +192,18 @@ st.markdown(f"""
         cursor: pointer;
     }}
 
-    /* کادر نمودارها */
-    [data-testid="stArrowVegaLiteChart"], [data-testid="stVegaLiteChart"] {{
+    /* اصلاح کامل کادر نمودارها جهت جلوگیری از بیرون‌زدگی گوشه‌ها */
+    div[data-testid="stVegaLiteChart"], div[data-testid="stArrowVegaLiteChart"] {{
         direction: ltr !important;
-        background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 16px;
-        padding: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.9);
+        background-color: #ffffff !important;
+        border-radius: 16px !important;
+        padding: 14px !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        overflow: hidden !important;
+    }}
+    div[data-testid="stVegaLiteChart"] summary, div[data-testid="stArrowVegaLiteChart"] summary {{
+        display: none !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -400,7 +404,7 @@ st.divider()
 # ۱۰. رسم نمودارها
 st.subheader("📈 نمودارهای رفتاری سیستم")
 
-st.markdown("<div style='text-align: center; font-size: 21px; font-weight: bold; color: #ffffff; text-shadow: 0 2px 6px rgba(0,0,0,0.7); margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #0f172a; margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
 
 timeframe = st.radio(
     label="بازه زمانی", 
