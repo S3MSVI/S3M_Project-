@@ -6,6 +6,8 @@ import requests
 from datetime import datetime
 import pytz
 import jdatetime
+import base64
+import os
 
 # ۱. تنظیمات اصلی صفحه
 st.set_page_config(
@@ -15,47 +17,66 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ۲. استایل‌های CSS تخصصی با حل تداخل فونت و پس‌زمینه رنگی
-st.markdown("""
+# تابع بارگذاری ایمن تصویر پس‌زمینه (Base64)
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return ""
+
+img_b64 = get_base64_image("solar.jpg")
+
+if img_b64:
+    bg_css = f"""
+        background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.75)),
+                    url("data:image/jpeg;base64,{img_b64}") no-repeat center center fixed !important;
+        background-size: cover !important;
+    """
+else:
+    bg_css = "background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;"
+
+# ۲. استایل‌های CSS با فونت B Nazanin و Times New Roman
+st.markdown(f"""
 <style>
     /* فراخوانی فونت B Nazanin */
-    @font-face {
+    @font-face {{
         font-family: 'B Nazanin';
         src: url('https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin.woff2') format('woff2');
         font-weight: normal;
         font-style: normal;
-    }
-    @font-face {
+    }}
+    @font-face {{
         font-family: 'B Nazanin';
         src: url('https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin-Bold.woff2') format('woff2');
         font-weight: bold;
         font-style: normal;
-    }
+    }}
 
-    /* پس‌زمینه زنده و گرادیان جذاب برای کل صفحه */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] { 
-        background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 50%, #bfdbfe 100%) !important;
-    }
+    /* اعمال پس‌زمینه عکس برای کل محیط برنامه */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{ 
+        {bg_css}
+    }}
 
-    /* اعمال فونت فقط روی عناصر متنی (بدون تخریب آیکون‌ها) */
-    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {
+    /* اعمال فونت روی متون */
+    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {{
         font-family: 'B Nazanin', 'Times New Roman', serif !important;
-    }
+    }}
 
-    [data-testid="stAppViewBlockContainer"], .main .block-container {
+    [data-testid="stAppViewBlockContainer"], .main .block-container {{
         max-width: 1000px !important;
         padding-top: 1.5rem !important;
         padding-bottom: 3rem !important;
         margin: 0 auto !important;
-    }
+    }}
 
     /* باکس هدر بالا */
-    .header-box {
-        background-color: #ffffff;
+    .header-box {{
+        background-color: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(12px);
         border-radius: 16px;
-        padding: 16px 22px;
-        border: 2px solid #94a3b8;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+        padding: 16px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
@@ -63,88 +84,127 @@ st.markdown("""
         flex-wrap: wrap;
         gap: 12px;
         direction: rtl;
-    }
-    .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
-    .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
+    }}
+    .header-item {{ color: #1e293b; font-size: 19px; font-weight: bold; }}
+    .header-highlight {{ color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }}
 
-    /* باکس کشویی‌ها با پس‌زمینه سفید و لبه‌های نرم */
-    [data-testid="stExpander"] {
-        background-color: #ffffff !important;
-        border-radius: 14px !important;
-        border: 2px solid #cbd5e1 !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+    /* باکس کشویی‌ها */
+    [data-testid="stExpander"] {{
+        background-color: rgba(255, 255, 255, 0.94) !important;
+        backdrop-filter: blur(12px) !important;
+        border-radius: 16px !important;
+        border: 1px solid rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
         margin-bottom: 20px !important;
-    }
+    }}
+    [data-testid="stExpander"] details summary {{
+        direction: rtl;
+    }}
+    [data-testid="stExpander"] details summary p {{
+        font-size: 21px !important;
+        font-weight: bold !important;
+        width: 100%;
+        text-align: center !important;
+        color: #0f172a !important;
+    }}
 
     /* پنل مقادیر زنده */
-    .metrics-container {
+    .metrics-container {{
         padding: 15px 5px;
         display: flex;
         flex-direction: column;
         gap: 30px;
         direction: rtl;
-    }
-    .metrics-row {
+    }}
+    .metrics-row {{
         display: flex;
         justify-content: space-around;
         align-items: center;
         flex-wrap: wrap;
         gap: 15px;
-    }
-    .metric-item {
+    }}
+    .metric-item {{
         flex: 1;
         min-width: 150px;
         text-align: center;
-    }
-    .metric-title {
+    }}
+    .metric-title {{
         color: #475569;
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 8px;
-    }
-    .metric-val {
+    }}
+    .metric-val {{
         color: #0f172a;
-        font-size: 27px;
+        font-size: 28px;
         font-weight: bold;
         font-family: 'Times New Roman', serif !important;
         direction: ltr;
         unicode-bidi: embed;
         display: inline-block;
-    }
+    }}
 
     /* عناوین */
-    h1 { font-size: 32px !important; color: #0f172a !important; font-weight: bold !important; text-align: center !important; margin-bottom: 20px !important; }
-    h2, h3, .stSubheader { font-size: 24px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-bottom: 15px !important; }
-    h5 { font-size: 20px !important; color: #334155 !important; font-weight: bold !important; text-align: center !important; margin-top: 25px !important; margin-bottom: 10px !important;}
+    h1 {{ 
+        font-size: 33px !important; 
+        color: #ffffff !important; 
+        font-weight: bold !important; 
+        text-align: center !important; 
+        margin-bottom: 20px !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+    }}
+    h2, h3, .stSubheader {{ 
+        font-size: 26px !important; 
+        color: #ffffff !important; 
+        font-weight: bold !important; 
+        text-align: center !important; 
+        margin-bottom: 15px !important;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+    }}
+    h5 {{ 
+        font-size: 21px !important; 
+        color: #ffffff !important; 
+        font-weight: bold !important; 
+        text-align: center !important; 
+        margin-top: 25px !important; 
+        margin-bottom: 10px !important;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    }}
     
-    /* وسط‌چین کردن دکمه‌های رادیویی تایم‌فریم */
-    div[role="radiogroup"] {
+    /* دکمه‌های تایم‌فریم */
+    div[role="radiogroup"] {{
         display: flex !important;
         justify-content: center !important;
         flex-wrap: wrap !important;
         width: 100% !important;
         margin: 0 auto !important;
         gap: 10px !important;
-    }
-    div[role="radiogroup"] label { 
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(8px);
+        padding: 10px 18px;
+        border-radius: 50px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+    }}
+    div[role="radiogroup"] label {{ 
         font-size: 18px !important; 
         font-weight: bold !important; 
-        color: #1e293b !important; 
+        color: #0f172a !important; 
         cursor: pointer;
-    }
+    }}
 
-    /* تنظیم جهت نمودارها از چپ به راست */
-    [data-testid="stArrowVegaLiteChart"], [data-testid="stVegaLiteChart"] {
+    /* کادر نمودارها */
+    [data-testid="stArrowVegaLiteChart"], [data-testid="stVegaLiteChart"] {{
         direction: ltr !important;
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    }
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# ۳. دریافت هوشمند دمای هوای تهران
+# ۳. دریافت دمای هوای تهران
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
@@ -178,7 +238,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center;'>🔋 مانیتورینگ جامع پنل خورشیدی و سیستم <span dir='ltr'>MPPT</span></h1>", unsafe_allow_html=True)
+st.markdown("<h1>🔋 مانیتورینگ جامع پنل خورشیدی و سیستم <span dir='ltr'>MPPT</span></h1>", unsafe_allow_html=True)
 
 # ۵. حافظه رم زنده برای دیتای سنسورها (ظرفیت ۲۰,۰۰۰ رکورد)
 @st.cache_resource
@@ -340,7 +400,7 @@ st.divider()
 # ۱۰. رسم نمودارها
 st.subheader("📈 نمودارهای رفتاری سیستم")
 
-st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #1e293b; margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; font-size: 21px; font-weight: bold; color: #ffffff; text-shadow: 0 2px 6px rgba(0,0,0,0.7); margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
 
 timeframe = st.radio(
     label="بازه زمانی", 
