@@ -15,10 +15,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ۲. استایل‌های CSS با فونت B Nazanin و Times New Roman + وسط‌چین کردن المان‌ها
+# ۲. استایل‌های CSS حرفه‌ای و مدرن
 st.markdown("""
 <style>
-    /* فراخوانی فونت B Nazanin از وب */
+    /* فراخوانی فونت B Nazanin */
     @font-face {
         font-family: 'B Nazanin';
         src: url('https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin.woff2') format('woff2');
@@ -32,9 +32,15 @@ st.markdown("""
         font-style: normal;
     }
 
-    /* اعمال فونت نازنین به کل صفحه و تایمز برای متون انگلیسی */
-    html, body, p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, li {
+    /* اعمال قطعی فونت به تمام عناصر استریم‌لیت */
+    * {
         font-family: 'B Nazanin', 'Times New Roman', serif !important;
+    }
+    
+    /* پس‌زمینه گرادیان مدرن برای کل صفحه */
+    .stApp { 
+        background: linear-gradient(135deg, #e2e8f0 0%, #ffffff 100%) !important;
+        color: #0f172a !important;
     }
 
     [data-testid="stAppViewBlockContainer"], .main .block-container {
@@ -44,35 +50,33 @@ st.markdown("""
         margin: 0 auto !important;
     }
 
-    .stApp, [data-testid="stHeader"] { 
-        background-color: #f1f5f9 !important; 
-        color: #0f172a !important;
-    }
-
-    /* باکس هدر بالا */
+    /* باکس هدر بالا با استایل مدرن */
     .header-box {
-        background-color: #ffffff;
-        border-radius: 14px;
+        background-color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
         padding: 16px 20px;
-        border: 2px solid #e2e8f0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 10px;
     }
-    .header-item { color: #1e293b; font-size: 18px; font-weight: bold; }
+    .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
 
-    /* استایل پنل کشویی مقادیر زنده */
+    /* پنل مقادیر زنده (حالت شیشه‌ای و زیبا) */
     .metrics-container {
-        padding: 10px 5px;
+        padding: 15px 5px;
         display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: 35px;
         direction: rtl;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 16px;
     }
     .metrics-row {
         display: flex;
@@ -88,64 +92,65 @@ st.markdown("""
     }
     .metric-title {
         color: #475569;
-        font-size: 20px;
+        font-size: 21px;
         font-weight: bold;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
     .metric-val {
         color: #0f172a;
-        font-size: 26px;
+        font-size: 28px;
         font-weight: bold;
         font-family: 'Times New Roman', serif !important;
         direction: ltr;
         unicode-bidi: embed;
         display: inline-block;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
     }
 
-    /* عناوین و وسط‌چین کردن آن‌ها */
-    h1 { font-size: 32px !important; color: #0f172a !important; font-weight: bold !important; text-align: center !important; }
-    h2, h3, .stSubheader { font-size: 24px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-bottom: 15px !important; }
-    h5 { font-size: 20px !important; color: #334155 !important; font-weight: bold !important; text-align: center !important; margin-top: 25px !important; margin-bottom: 10px !important;}
+    /* عناوین */
+    h1 { font-size: 34px !important; color: #0f172a !important; font-weight: bold !important; text-align: center !important; margin-bottom: 20px !important;}
+    h2, h3, .stSubheader { font-size: 26px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-bottom: 15px !important; }
+    h5 { font-size: 22px !important; color: #334155 !important; font-weight: bold !important; text-align: center !important; margin-top: 25px !important; margin-bottom: 10px !important;}
     
-    /* وسط‌چین کردن قطعی گزینه‌های رادیویی */
-    div[data-testid="stRadio"] {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        width: 100% !important;
-    }
-    div[data-testid="stRadio"] > label {
-        display: flex !important;
-        justify-content: center !important;
-        width: 100% !important;
-        margin-bottom: 10px !important;
-    }
-    div[data-testid="stRadio"] > label > div > p {
-        font-size: 18px !important; 
-        font-weight: bold !important; 
-        color: #334155 !important;
-        text-align: center !important;
-    }
+    /* ---------------------------------------------------
+       رفع مشکل وسط‌چین نشدن تایم‌فریم و حذف لیبل‌های اضافی
+       --------------------------------------------------- */
     div[role="radiogroup"] {
+        display: flex !important;
         justify-content: center !important;
+        flex-wrap: wrap !important;
         width: 100% !important;
+        margin: 0 auto !important;
+        gap: 12px !important;
     }
-    div[role="radiogroup"] label { 
-        font-size: 18px !important; 
-        font-weight: bold !important; 
-        color: #334155 !important; 
+    div[role="radiogroup"] > label {
+        margin: 0 !important;
+        padding: 0 8px !important;
         cursor: pointer;
+    }
+    div[role="radiogroup"] p { 
+        font-size: 19px !important; 
+        font-weight: bold !important; 
+        color: #1e293b !important; 
     }
     
     /* وسط‌چین کردن کشویی‌ها (Expander) */
+    [data-testid="stExpander"] {
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(0,0,0,0.05) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+    }
     [data-testid="stExpander"] details summary {
         direction: rtl;
+        justify-content: center !important;
     }
     [data-testid="stExpander"] details summary p {
-        font-size: 20px !important;
+        font-size: 22px !important;
         font-weight: bold !important;
         width: 100%;
-        text-align: center;
+        text-align: center !important;
+        color: #0f172a !important;
     }
     [data-testid="stExpander"] details summary span {
         flex-grow: 1;
@@ -156,6 +161,7 @@ st.markdown("""
     [data-testid="stArrowVegaLiteChart"], [data-testid="stVegaLiteChart"] {
         direction: ltr !important;
     }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -302,14 +308,14 @@ except Exception as e:
 # ۸. پنل کشویی وضعیت اتصال شبکه
 with st.expander("🛠️ وضعیت اتصال و شبکه MQTT", expanded=not sensor_data['mqtt_connected']):
     status_color = "🟢 متصل به سرور" if sensor_data['mqtt_connected'] else "🔴 در حال اتصال..."
-    st.markdown(f"<div style='text-align: center;'><b>وضعیت شبکه‌:</b> {status_color}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center;'><b>تعداد کل پیام‌ها:</b> `{sensor_data['msg_count']}`</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center;'><b>آخرین تاپیک:</b> <span style='font-family: Times New Roman, serif;'>`{sensor_data['last_topic']}`</span></div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center;'><b>آخرین داده:</b> <span style='font-family: Times New Roman, serif;'>`{sensor_data['last_payload']}`</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>وضعیت شبکه‌:</b> {status_color}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>تعداد کل پیام‌ها:</b> <span style='font-family: Times New Roman, serif;'>{sensor_data['msg_count']}</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>آخرین تاپیک:</b> <span style='font-family: Times New Roman, serif; color: #2563eb;'>{sensor_data['last_topic']}</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>آخرین داده:</b> <span style='font-family: Times New Roman, serif; color: #2563eb;'>{sensor_data['last_payload']}</span></div>", unsafe_allow_html=True)
 
 st.divider()
 
-# ۹. مقادیر عددی زنده (متقارن ۶ تایی)
+# ۹. مقادیر عددی زنده
 with st.expander("📊 مقادیر زنده پنل خورشیدی و سیستم", expanded=True):
     metrics_html = f"""
     <div class="metrics-container">
@@ -350,11 +356,12 @@ st.divider()
 # ۱۰. رسم نمودارها
 st.subheader("📈 نمودارهای رفتاری سیستم")
 
-st.markdown("<div style='text-align: center; font-size: 18px; font-weight: bold; color: #334155; margin-bottom: 10px; margin-top: 20px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; font-size: 22px; font-weight: bold; color: #1e293b; margin-bottom: 15px; margin-top: 15px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
 
+# ارسال لیبل خالی برای جلوگیری از رندر شدن متن اضافی
 timeframe = st.radio(
-    "تایم‌فریم",
-    ["۱ دقیقه اخیر", "۵ دقیقه اخیر", "۱۵ دقیقه اخیر", "۱ ساعت اخیر", "۱۲ ساعت اخیر", "کل تاریخچه"],
+    label=" ", 
+    options=["۱ دقیقه اخیر", "۵ دقیقه اخیر", "۱۵ دقیقه اخیر", "۱ ساعت اخیر", "۱۲ ساعت اخیر", "کل تاریخچه"],
     horizontal=True,
     index=1,
     label_visibility="collapsed"
