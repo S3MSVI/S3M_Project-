@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ۲. استایل‌های CSS با تم روشن، شیشه‌ای و عکس پس‌زمینه 4K
+# ۲. استایل‌های CSS با تم روشن و پس‌زمینه 4K (اصلاح‌شده برای سرور ابری)
 st.markdown("""
 <style>
     /* فراخوانی فونت B Nazanin */
@@ -32,12 +32,18 @@ st.markdown("""
         font-style: normal;
     }
 
-    /* اعمال پس‌زمینه عکس 4K با یک لایه روشن‌کننده ملایم برای تم لایت */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] { 
-        background: 
-            linear-gradient(rgba(255, 255, 255, 0.45), rgba(240, 248, 255, 0.65)),
-            url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') no-repeat center center fixed !important;
+    /* شفاف کردن لایه‌های رویی استریم‌لیت */
+    .stApp, [data-testid="stHeader"] {
+        background-color: transparent !important;
+    }
+
+    /* اعمال قطعی عکس پس‌زمینه با دستورات تفکیک‌شده */
+    [data-testid="stAppViewContainer"] { 
+        background-image: linear-gradient(rgba(255, 255, 255, 0.65), rgba(240, 248, 255, 0.75)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
         background-size: cover !important;
+        background-position: center center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
     }
 
     /* اعمال فونت روی متون */
@@ -54,12 +60,12 @@ st.markdown("""
 
     /* باکس هدر بالا (سفید شیشه‌ای) */
     .header-box {
-        background-color: rgba(255, 255, 255, 0.92);
+        background-color: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(12px);
         border-radius: 16px;
         padding: 16px 24px;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
@@ -77,7 +83,7 @@ st.markdown("""
         backdrop-filter: blur(12px) !important;
         border-radius: 16px !important;
         border: 1px solid rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
         margin-bottom: 20px !important;
     }
     [data-testid="stExpander"] details summary {
@@ -127,7 +133,7 @@ st.markdown("""
         display: inline-block;
     }
 
-    /* عناوین (تیره و خوانا روی پس‌زمینه) */
+    /* عناوین */
     h1 { 
         font-size: 33px !important; 
         color: #0f172a !important; 
@@ -161,12 +167,12 @@ st.markdown("""
         width: 100% !important;
         margin: 0 auto !important;
         gap: 10px !important;
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(8px);
         padding: 10px 18px;
         border-radius: 50px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.9);
     }
     div[role="radiogroup"] label { 
         font-size: 18px !important; 
@@ -181,7 +187,7 @@ st.markdown("""
         background-color: #ffffff !important;
         border-radius: 16px !important;
         padding: 14px !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
         border: 1px solid rgba(226, 232, 240, 0.9) !important;
         overflow: hidden !important;
     }
