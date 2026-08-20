@@ -12,10 +12,10 @@ st.set_page_config(
     page_title="Solar & MPPT Dashboard",
     page_icon="⚡",
     layout="centered",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
-# ۲. استایل‌های CSS (رفع قطعی مشکل فونت و وسط‌چین شدن تایم‌فریم)
+# ۲. استایل‌های CSS (رفع باگ آیکون‌های روی‌هم‌افتاده و فونت‌ها)
 st.markdown("""
 <style>
     /* فراخوانی فونت B Nazanin */
@@ -39,15 +39,15 @@ st.markdown("""
 
     /* عکس پس‌زمینه با کیفیت و تم روشن */
     [data-testid="stAppViewContainer"] { 
-        background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(240, 248, 255, 0.8)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(240, 248, 255, 0.85)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
         background-size: cover !important;
         background-position: center center !important;
         background-attachment: fixed !important;
         background-repeat: no-repeat !important;
     }
 
-    /* اعمال قطعی فونت روی تمام متون (حتی تگ‌های مخفی استریم‌لیت) */
-    html, body, p, span, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title, [data-testid="stMarkdownContainer"] * {
+    /* اعمال فونت فقط روی تگ‌های متنی (حذف span برای جلوگیری از خرابی آیکون‌ها) */
+    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {
         font-family: 'B Nazanin', Tahoma, 'Times New Roman', serif !important;
     }
 
@@ -90,6 +90,7 @@ st.markdown("""
         direction: rtl;
     }
     [data-testid="stExpander"] details summary p {
+        font-family: 'B Nazanin', Tahoma, serif !important;
         font-size: 21px !important;
         font-weight: bold !important;
         width: 100%;
@@ -159,9 +160,7 @@ st.markdown("""
         margin-bottom: 10px !important;
     }
     
-    /* ==============================================================
-       حل قطعی تایم‌فریم: وسط‌چین کردن کامل و اعمال فونت به گزینه‌ها
-       ============================================================== */
+    /* وسط‌چین کردن دکمه‌های تایم‌فریم */
     div[data-testid="stRadio"] {
         display: flex !important;
         justify-content: center !important;
@@ -180,7 +179,7 @@ st.markdown("""
         border-radius: 50px !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
         border: 1px solid rgba(226, 232, 240, 0.9) !important;
-        direction: rtl !important; /* راست‌چین کردن کل کادر */
+        direction: rtl !important;
     }
     div[role="radiogroup"] label {
         display: inline-flex !important;
@@ -188,8 +187,7 @@ st.markdown("""
         margin: 0 10px !important;
         cursor: pointer !important;
     }
-    /* اعمال فونت B Nazanin به متن دکمه‌های رادیویی و اصلاح جهت نوشتار */
-    div[role="radiogroup"] label p, div[role="radiogroup"] label span { 
+    div[role="radiogroup"] label p { 
         font-family: 'B Nazanin', Tahoma, serif !important;
         font-size: 19px !important; 
         font-weight: bold !important; 
@@ -213,6 +211,10 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+# تنظیمات بروزرسانی در سایدبار
+st.sidebar.markdown("### ⚙️ تنظیمات داشبورد")
+live_update = st.sidebar.checkbox("🔄 بروزرسانی زنده (Live)", value=True, help="برای توقف موقت دریافت داده‌ها، این تیک را بردارید.")
 
 # ۳. دریافت دمای هوای تهران
 @st.cache_data(ttl=300)
@@ -485,6 +487,7 @@ with st.expander("🗃️ مشاهده و دانلود جدول آرشیو زم�
     else:
         st.info("در حال دریافت داده‌ها از سخت‌افزار...")
 
-# ۱۲. بروزرسانی خودکار
-time.sleep(2) 
-st.rerun()
+# ۱۲. بروزرسانی خودکار با دکمه کنترل
+if live_update:
+    time.sleep(3)
+    st.rerun()
