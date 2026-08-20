@@ -15,10 +15,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ۲. استایل‌های CSS با پس‌زمینه 4K باکیفیت بالا و فونت B Nazanin
+# ۲. استایل‌های CSS تخصصی تم دارک مدرن (Tesla / Cyber Dashboard)
 st.markdown("""
 <style>
-    /* فراخوانی فونت B Nazanin */
     @font-face {
         font-family: 'B Nazanin';
         src: url('https://cdn.fontcdn.ir/Font/Persian/BNazanin/BNazanin.woff2') format('woff2');
@@ -32,15 +31,14 @@ st.markdown("""
         font-style: normal;
     }
 
-    /* اعمال پس‌زمینه 4K فوق‌العاده باکیفیت با لایه شیشه‌ای روشن */
+    /* بک‌گراند دارک عمیق با هاله‌های نوری نئونی در گوشه‌ها */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] { 
-        background: 
-            linear-gradient(rgba(255, 255, 255, 0.28), rgba(240, 245, 250, 0.45)),
-            url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') no-repeat center center fixed !important;
-        background-size: cover !important;
+        background: radial-gradient(circle at 10% 20%, rgba(30, 58, 138, 0.4) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(217, 119, 6, 0.25) 0%, transparent 40%),
+                    #090d16 !important;
+        color: #f8fafc !important;
     }
 
-    /* اعمال فونت روی متون */
     p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {
         font-family: 'B Nazanin', 'Times New Roman', serif !important;
     }
@@ -52,14 +50,14 @@ st.markdown("""
         margin: 0 auto !important;
     }
 
-    /* باکس هدر بالا */
+    /* باکس هدر بالا با استایل شیشه دارک */
     .header-box {
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background-color: rgba(17, 24, 39, 0.75);
+        backdrop-filter: blur(14px);
         border-radius: 16px;
         padding: 16px 24px;
-        border: 1px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
@@ -68,16 +66,16 @@ st.markdown("""
         gap: 12px;
         direction: rtl;
     }
-    .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
-    .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
+    .header-item { color: #cbd5e1; font-size: 19px; font-weight: bold; }
+    .header-highlight { color: #38bdf8; font-weight: bold; font-family: 'Times New Roman', serif !important; }
 
     /* باکس کشویی‌ها */
     [data-testid="stExpander"] {
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px) !important;
+        background-color: rgba(17, 24, 39, 0.75) !important;
+        backdrop-filter: blur(14px) !important;
         border-radius: 16px !important;
-        border: 1px solid rgba(255, 255, 255, 0.9) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
         margin-bottom: 20px !important;
     }
     [data-testid="stExpander"] details summary {
@@ -88,7 +86,7 @@ st.markdown("""
         font-weight: bold !important;
         width: 100%;
         text-align: center !important;
-        color: #0f172a !important;
+        color: #f1f5f9 !important;
     }
 
     /* پنل مقادیر زنده */
@@ -112,41 +110,41 @@ st.markdown("""
         text-align: center;
     }
     .metric-title {
-        color: #475569;
+        color: #94a3b8;
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 8px;
     }
     .metric-val {
-        color: #0f172a;
+        color: #38bdf8;
         font-size: 28px;
         font-weight: bold;
         font-family: 'Times New Roman', serif !important;
         direction: ltr;
         unicode-bidi: embed;
         display: inline-block;
+        text-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
     }
 
-    /* عناوین با کنتراست شفاف */
+    /* عناوین */
     h1 { 
         font-size: 33px !important; 
-        color: #0f172a !important; 
+        color: #ffffff !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-bottom: 20px !important;
-        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
     h2, h3, .stSubheader { 
         font-size: 26px !important; 
-        color: #0f172a !important; 
+        color: #f8fafc !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-bottom: 15px !important;
-        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
     }
     h5 { 
         font-size: 21px !important; 
-        color: #1e293b !important; 
+        color: #cbd5e1 !important; 
         font-weight: bold !important; 
         text-align: center !important; 
         margin-top: 25px !important; 
@@ -161,27 +159,28 @@ st.markdown("""
         width: 100% !important;
         margin: 0 auto !important;
         gap: 10px !important;
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(17, 24, 39, 0.8);
         backdrop-filter: blur(8px);
         padding: 10px 18px;
         border-radius: 50px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
     }
     div[role="radiogroup"] label { 
         font-size: 18px !important; 
         font-weight: bold !important; 
-        color: #0f172a !important; 
+        color: #f1f5f9 !important; 
         cursor: pointer;
     }
 
-    /* کادر یکدست سفید و تمیز نمودارها */
+    /* کادر نمودارها با تم تیره */
     div[data-testid="stVegaLiteChart"], div[data-testid="stArrowVegaLiteChart"] {
         direction: ltr !important;
-        background-color: #ffffff !important;
+        background-color: rgba(17, 24, 39, 0.85) !important;
         border-radius: 16px !important;
         padding: 14px !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
-        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         overflow: hidden !important;
     }
     div[data-testid="stVegaLiteChart"] summary, div[data-testid="stArrowVegaLiteChart"] summary {
@@ -226,7 +225,7 @@ st.markdown(f"""
 
 st.markdown("<h1>🔋 مانیتورینگ جامع پنل خورشیدی و سیستم <span dir='ltr'>MPPT</span></h1>", unsafe_allow_html=True)
 
-# ۵. حافظه رم زنده برای دیتای سنسورها (ظرفیت ۲۰,۰۰۰ رکورد)
+# ۵. حافظه رم زنده برای دیتای سنسورها
 @st.cache_resource
 def get_sensor_data():
     return {
@@ -340,8 +339,8 @@ with st.expander("🛠️ وضعیت اتصال و شبکه MQTT", expanded=not 
     status_color = "🟢 متصل به سرور" if sensor_data['mqtt_connected'] else "🔴 در حال اتصال..."
     st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>وضعیت شبکه‌:</b> {status_color}</div>", unsafe_allow_html=True)
     st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>تعداد کل پیام‌ها:</b> <span style='font-family: Times New Roman, serif;'>{sensor_data['msg_count']}</span></div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>آخرین تاپیک:</b> <span style='font-family: Times New Roman, serif; color: #2563eb;'>{sensor_data['last_topic']}</span></div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>آخرین داده:</b> <span style='font-family: Times New Roman, serif; color: #2563eb;'>{sensor_data['last_payload']}</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>آخرین تاپیک:</b> <span style='font-family: Times New Roman, serif; color: #38bdf8;'>{sensor_data['last_topic']}</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: center; font-size: 19px;'><b>آخرین داده:</b> <span style='font-family: Times New Roman, serif; color: #38bdf8;'>{sensor_data['last_payload']}</span></div>", unsafe_allow_html=True)
 
 st.divider()
 
@@ -386,7 +385,7 @@ st.divider()
 # ۱۰. رسم نمودارها
 st.subheader("📈 نمودارهای رفتاری سیستم")
 
-st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #0f172a; margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #cbd5e1; margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
 
 timeframe = st.radio(
     label="بازه زمانی", 
@@ -425,22 +424,22 @@ def draw_chart(data_list, time_list, chart_name, line_color, limit=None):
         st.info("در حال جمع‌آوری داده‌ها...")
 
 st.markdown("##### ⚡ نوسانات ولتاژ (V)")
-draw_chart(sensor_data['hist_voltage'], sensor_data['timestamps'], "ولتاژ (V)", "#2563eb", limit=point_limit)
+draw_chart(sensor_data['hist_voltage'], sensor_data['timestamps'], "ولتاژ (V)", "#38bdf8", limit=point_limit)
 
 st.markdown("##### 🔌 نوسانات جریان (mA)")
-draw_chart(sensor_data['hist_current'], sensor_data['timestamps'], "جریان (mA)", "#d97706", limit=point_limit)
+draw_chart(sensor_data['hist_current'], sensor_data['timestamps'], "جریان (mA)", "#fbbf24", limit=point_limit)
 
 st.markdown("##### 🔋 تغییرات توان (mW)")
-draw_chart(sensor_data['hist_power'], sensor_data['timestamps'], "توان (mW)", "#059669", limit=point_limit)
+draw_chart(sensor_data['hist_power'], sensor_data['timestamps'], "توان (mW)", "#34d399", limit=point_limit)
 
 st.markdown("##### ☀️ نوسانات شدت روشنایی (Lux)")
-draw_chart(sensor_data['hist_lux'], sensor_data['timestamps'], "شدت روشنایی (Lux)", "#ca8a04", limit=point_limit)
+draw_chart(sensor_data['hist_lux'], sensor_data['timestamps'], "شدت روشنایی (Lux)", "#f59e0b", limit=point_limit)
 
 st.markdown("##### 🔆 نوسانات توان تابشی خورشید (W/m²)")
-draw_chart(sensor_data['hist_watts'], sensor_data['timestamps'], "توان تابشی (W/m²)", "#ea580c", limit=point_limit)
+draw_chart(sensor_data['hist_watts'], sensor_data['timestamps'], "توان تابشی (W/m²)", "#f97316", limit=point_limit)
 
 st.markdown("##### 🌡️ تغییرات دمای پنل (°C)")
-draw_chart(sensor_data['hist_temp'], sensor_data['timestamps'], "دمای پنل (°C)", "#dc2626", limit=point_limit)
+draw_chart(sensor_data['hist_temp'], sensor_data['timestamps'], "دمای پنل (°C)", "#f87171", limit=point_limit)
 
 st.divider()
 
