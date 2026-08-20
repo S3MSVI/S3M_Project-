@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ۲. استایل‌های CSS با تم روشن و پس‌زمینه 4K (اصلاح‌شده برای سرور ابری)
+# ۲. استایل‌های CSS (رفع قطعی مشکل فونت و وسط‌چین شدن تایم‌فریم)
 st.markdown("""
 <style>
     /* فراخوانی فونت B Nazanin */
@@ -37,18 +37,18 @@ st.markdown("""
         background-color: transparent !important;
     }
 
-    /* اعمال قطعی عکس پس‌زمینه با دستورات تفکیک‌شده */
+    /* عکس پس‌زمینه با کیفیت و تم روشن */
     [data-testid="stAppViewContainer"] { 
-        background-image: linear-gradient(rgba(255, 255, 255, 0.65), rgba(240, 248, 255, 0.75)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.7), rgba(240, 248, 255, 0.8)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
         background-size: cover !important;
         background-position: center center !important;
         background-attachment: fixed !important;
         background-repeat: no-repeat !important;
     }
 
-    /* اعمال فونت روی متون */
-    p, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title {
-        font-family: 'B Nazanin', 'Times New Roman', serif !important;
+    /* اعمال قطعی فونت روی تمام متون (حتی تگ‌های مخفی استریم‌لیت) */
+    html, body, p, span, h1, h2, h3, h4, h5, h6, label, button, input, select, textarea, div.metric-title, [data-testid="stMarkdownContainer"] * {
+        font-family: 'B Nazanin', Tahoma, 'Times New Roman', serif !important;
     }
 
     [data-testid="stAppViewBlockContainer"], .main .block-container {
@@ -58,7 +58,7 @@ st.markdown("""
         margin: 0 auto !important;
     }
 
-    /* باکس هدر بالا (سفید شیشه‌ای) */
+    /* باکس هدر بالا */
     .header-box {
         background-color: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(12px);
@@ -77,7 +77,7 @@ st.markdown("""
     .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
 
-    /* باکس کشویی‌ها (سفید شیشه‌ای) */
+    /* باکس کشویی‌ها */
     [data-testid="stExpander"] {
         background-color: rgba(255, 255, 255, 0.95) !important;
         backdrop-filter: blur(12px) !important;
@@ -159,29 +159,46 @@ st.markdown("""
         margin-bottom: 10px !important;
     }
     
-    /* دکمه‌های تایم‌فریم (کادر کپسولی سفید) */
-    div[role="radiogroup"] {
+    /* ==============================================================
+       حل قطعی تایم‌فریم: وسط‌چین کردن کامل و اعمال فونت به گزینه‌ها
+       ============================================================== */
+    div[data-testid="stRadio"] {
         display: flex !important;
         justify-content: center !important;
-        flex-wrap: wrap !important;
+        align-items: center !important;
         width: 100% !important;
-        margin: 0 auto !important;
-        gap: 10px !important;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(8px);
-        padding: 10px 18px;
-        border-radius: 50px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.9);
     }
-    div[role="radiogroup"] label { 
-        font-size: 18px !important; 
+    div[role="radiogroup"] {
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        margin: 0 auto !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(8px) !important;
+        padding: 12px 25px !important;
+        border-radius: 50px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        direction: rtl !important; /* راست‌چین کردن کل کادر */
+    }
+    div[role="radiogroup"] label {
+        display: inline-flex !important;
+        align-items: center !important;
+        margin: 0 10px !important;
+        cursor: pointer !important;
+    }
+    /* اعمال فونت B Nazanin به متن دکمه‌های رادیویی و اصلاح جهت نوشتار */
+    div[role="radiogroup"] label p, div[role="radiogroup"] label span { 
+        font-family: 'B Nazanin', Tahoma, serif !important;
+        font-size: 19px !important; 
         font-weight: bold !important; 
         color: #0f172a !important; 
-        cursor: pointer;
+        direction: rtl !important;
+        unicode-bidi: embed !important;
     }
 
-    /* کادر سفید، مرتب و بدون بیرون‌زدگی برای نمودارها */
+    /* کادر نمودارها */
     div[data-testid="stVegaLiteChart"], div[data-testid="stArrowVegaLiteChart"] {
         direction: ltr !important;
         background-color: #ffffff !important;
@@ -233,7 +250,7 @@ st.markdown(f"""
 
 st.markdown("<h1>🔋 مانیتورینگ جامع پنل خورشیدی و سیستم <span dir='ltr'>MPPT</span></h1>", unsafe_allow_html=True)
 
-# ۵. حافظه رم زنده برای دیتای سنسورها (ظرفیت ۲۰,۰۰۰ رکورد)
+# ۵. حافظه رم زنده برای دیتای سنسورها
 @st.cache_resource
 def get_sensor_data():
     return {
