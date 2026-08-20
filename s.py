@@ -412,7 +412,6 @@ st.divider()
 # ۱۰. رسم نمودارها
 st.subheader("📈 نمودارهای رفتاری سیستم")
 
-st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #0f172a; margin-bottom: 12px;'>⏱️ انتخاب بازه زمانی نمایش (تایم‌فریم):</div>", unsafe_allow_html=True)
 
 timeframe = st.radio(
     label="بازه زمانی", 
