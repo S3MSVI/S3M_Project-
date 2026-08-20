@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ۲. استایل‌های CSS (رفع باگ آیکون‌های روی‌هم‌افتاده و فونت‌ها)
+# ۲. استایل‌های CSS 
 st.markdown("""
 <style>
     /* فراخوانی فونت B Nazanin */
@@ -77,14 +77,22 @@ st.markdown("""
     .header-item { color: #1e293b; font-size: 19px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Times New Roman', serif !important; }
 
-    /* باکس کشویی‌ها */
+    /* ==============================================================
+       حل مشکل دوتا شدن کشویی‌ها در زمان رفرش استریم‌لیت
+       ============================================================== */
     [data-testid="stExpander"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 20px !important;
+    }
+    [data-testid="stExpander"] details {
         background-color: rgba(255, 255, 255, 0.95) !important;
         backdrop-filter: blur(12px) !important;
         border-radius: 16px !important;
         border: 1px solid rgba(255, 255, 255, 0.9) !important;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
-        margin-bottom: 20px !important;
+        padding: 0 !important;
     }
     [data-testid="stExpander"] details summary {
         direction: rtl;
