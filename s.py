@@ -18,17 +18,9 @@ st.set_page_config(
 # 2. CSS Styling (Minimalist, LTR, Sharp Edges)
 st.markdown("""
 <style>
-    /* Clean English Font Stack */
-    * {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    }
-
-    /* Transparent Headers */
-    .stApp, [data-testid="stHeader"] {
-        background-color: transparent !important;
-    }
-
-    /* 4K Background */
+    * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
+    .stApp, [data-testid="stHeader"] { background-color: transparent !important; }
+    
     [data-testid="stAppViewContainer"] { 
         background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(240, 248, 255, 0.85)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
         background-size: cover !important;
@@ -37,165 +29,78 @@ st.markdown("""
         background-repeat: no-repeat !important;
     }
 
-    /* Title */
     h1 {
         font-family: 'Times New Roman', Tahoma, serif !important;
-        font-size: 38px !important; 
-        color: #0f172a !important; 
-        font-weight: bold !important; 
-        text-align: center !important; 
-        margin-bottom: 30px !important;
-        text-shadow: 0 2px 6px rgba(255, 255, 255, 0.9);
-        letter-spacing: 2px;
+        font-size: 38px !important; color: #0f172a !important; font-weight: bold !important; 
+        text-align: center !important; margin-bottom: 30px !important;
+        text-shadow: 0 2px 6px rgba(255, 255, 255, 0.9); letter-spacing: 2px;
     }
 
-    /* Wide Layout adjustments */
     [data-testid="stAppViewBlockContainer"], .main .block-container {
-        max-width: 1600px !important;
-        padding-top: 1.5rem !important;
-        padding-bottom: 2rem !important;
+        max-width: 1600px !important; padding-top: 1.5rem !important; padding-bottom: 2rem !important;
     }
 
-    /* Header Box */
     .header-box {
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-radius: 16px;
-        padding: 18px 20px;
-        border: 1px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        margin-bottom: 25px;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
+        background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+        border-radius: 16px; padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); margin-bottom: 25px;
+        display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 12px;
     }
     .header-item { color: #1e293b; font-size: 16px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Courier New', Courier, monospace !important; }
     .header-highlight.green { color: #10b981 !important; }
     .header-highlight.red { color: #ef4444 !important; }
 
-    /* Live Data Box */
     .live-data-box {
-        background-color: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(12px);
-        border-radius: 16px;
-        padding: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.9);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        margin-bottom: 25px;
+        background-color: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px);
+        border-radius: 16px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); margin-bottom: 25px;
     }
     .live-data-title {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-        color: #0f172a;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #e2e8f0;
-        padding-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        text-align: center; font-size: 20px; font-weight: bold; color: #0f172a;
+        margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;
+        text-transform: uppercase; letter-spacing: 1px;
     }
 
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
+    .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
     .metric-item {
-        background: rgba(241, 245, 249, 0.6);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        border-radius: 12px;
-        padding: 12px 5px;
-        text-align: center;
+        background: rgba(241, 245, 249, 0.6); border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 12px; padding: 12px 5px; text-align: center;
     }
     .energy-item {
-        grid-column: span 2;
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.25));
+        grid-column: span 2; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.25));
         border: 1px solid rgba(16, 185, 129, 0.4);
     }
-    .metric-title {
-        color: #475569;
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-    }
-    .metric-val {
-        color: #0f172a;
-        font-size: 24px;
-        font-weight: bold;
-        font-family: 'Courier New', Courier, monospace !important;
-        display: inline-block;
-    }
+    .metric-title { color: #475569; font-size: 14px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+    .metric-val { color: #0f172a; font-size: 24px; font-weight: bold; font-family: 'Courier New', Courier, monospace !important; display: inline-block; }
     .energy-val { color: #047857; font-size: 28px; }
 
-    /* Chart Titles */
-    h5 { 
-        font-size: 16px !important; 
-        color: #1e293b !important; 
-        font-weight: bold !important; 
-        text-align: center !important; 
-        margin-top: 15px !important; 
-        margin-bottom: 8px !important;
-        text-transform: uppercase;
-    }
+    h5 { font-size: 16px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-top: 15px !important; margin-bottom: 8px !important; text-transform: uppercase; }
     
-    /* Timeframe Selector */
-    div[data-testid="stRadio"] {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        margin-bottom: 15px;
-    }
+    div[data-testid="stRadio"] { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; margin-bottom: 15px; }
     div[role="radiogroup"] {
-        display: inline-flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        flex-wrap: wrap !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(8px) !important;
-        padding: 8px 15px !important;
-        border-radius: 50px !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
-        border: 1px solid rgba(226, 232, 240, 0.9) !important;
+        display: inline-flex !important; justify-content: center !important; align-items: center !important; flex-wrap: wrap !important;
+        background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(8px) !important; padding: 8px 15px !important;
+        border-radius: 50px !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important; border: 1px solid rgba(226, 232, 240, 0.9) !important;
     }
-    div[role="radiogroup"] label p { 
-        font-size: 14px !important; 
-        font-weight: bold !important; 
-        color: #0f172a !important; 
-    }
+    div[role="radiogroup"] label p { font-size: 14px !important; font-weight: bold !important; color: #0f172a !important; }
 
-    /* Sharp Charts */
     div[data-testid="stVegaLiteChart"], div[data-testid="stArrowVegaLiteChart"] {
-        background-color: #ffffff !important;
-        border-radius: 0px !important; 
-        padding: 10px !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-        border: 1px solid rgba(203, 213, 225, 0.9) !important;
-        overflow: hidden !important;
+        background-color: #ffffff !important; border-radius: 0px !important; padding: 10px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; border: 1px solid rgba(203, 213, 225, 0.9) !important; overflow: hidden !important;
     }
     div[data-testid="stVegaLiteChart"] summary, div[data-testid="stArrowVegaLiteChart"] summary { display: none !important; }
 
-    /* Saving Box */
     .save-box {
-        background-color: rgba(255, 255, 255, 0.95);
-        border: 1px solid #e2e8f0;
-        border-radius: 0px; 
-        padding: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        margin-top: 15px;
+        background-color: rgba(255, 255, 255, 0.95); border: 1px solid #e2e8f0; border-radius: 0px; 
+        padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-top: 15px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar Settings
 st.sidebar.markdown("### ⚙️ Settings")
 live_update = st.sidebar.checkbox("🔄 Live Update", value=True)
 
-# 3. Weather Fetcher
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
@@ -203,27 +108,22 @@ def get_tehran_weather():
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers, timeout=6)
         data = response.json()
-        if 'current' in data and 'temperature_2m' in data['current']:
-            temp = data['current']['temperature_2m']
-        elif 'current_weather' in data:
-            temp = data['current_weather']['temperature']
-        else:
-            temp = 28.5
-        return f"{temp} °C"
+        if 'current' in data and 'temperature_2m' in data['current']: return f"{data['current']['temperature_2m']} °C"
+        elif 'current_weather' in data: return f"{data['current_weather']['temperature']} °C"
     except:
-        return "28.0 °C"
+        pass
+    return "28.0 °C"
 
-# 4. Date and Time (Shamsi Date, English Text)
 tehran_tz = pytz.timezone('Asia/Tehran')
 now_tehran = datetime.now(tehran_tz)
 j_date = jdatetime.datetime.fromgregorian(datetime=now_tehran)
-date_str = j_date.strftime("%Y/%m/%d") # فرمت شمسی
+date_str = j_date.strftime("%Y/%m/%d") 
 time_str = now_tehran.strftime("%H:%M:%S")
 tehran_weather = get_tehran_weather()
 
-# 5. Live Memory for Sensor Data (تغییر نام برای پاکسازی قطعی کش قدیمی)
+# 5. Live Memory (V4: Completely clear cache to fix frozen data)
 @st.cache_resource
-def get_mppt_data_v3():
+def get_mppt_data_v4():
     return {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
@@ -231,9 +131,9 @@ def get_mppt_data_v3():
         'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
 
-sensor_data = get_mppt_data_v3()
+sensor_data = get_mppt_data_v4()
 
-# 6. MQTT Callbacks & Logic
+# 6. MQTT Logic (Fix logic for updating charts immediately)
 def on_connect(client, userdata, flags, rc, properties=None):
     sensor_data['mqtt_connected'] = True
     client.subscribe("my_powerplant/#")
@@ -258,47 +158,42 @@ def on_message(client, userdata, msg):
             sensor_data['last_power_time'] = current_t
         elif sensor_name == "temperature": sensor_data['temp'] = value
         elif sensor_name == "lux": sensor_data['lux'] = value
-        elif sensor_name == "watts": 
-            sensor_data['watts'] = value
+        elif sensor_name == "watts": sensor_data['watts'] = value
             
-            # ثبت در هیستوری و جدول فقط زمانی که چرخه سنسورها کامل شد (روی وات)
-            current_time_str = datetime.now(tehran_tz).strftime("%H:%M:%S")
-            if sensor_data['last_time'] != current_time_str:
-                sensor_data['last_time'] = current_time_str
-                
-                sensor_data['timestamps'].append(current_time_str)
-                sensor_data['hist_voltage'].append(sensor_data['voltage'])
-                sensor_data['hist_current'].append(sensor_data['current'])
-                sensor_data['hist_power'].append(sensor_data['power'])
-                sensor_data['hist_temp'].append(sensor_data['temp'])
-                sensor_data['hist_lux'].append(sensor_data['lux'])
-                sensor_data['hist_watts'].append(sensor_data['watts'])
-                sensor_data['hist_energy'].append(sensor_data['total_energy_mWh'])
-                
-                record = {
-                    'Time': current_time_str,
-                    'Voltage (V)': sensor_data['voltage'], 
-                    'Current (mA)': sensor_data['current'],
-                    'Power (mW)': sensor_data['power'], 
-                    'Energy (mWh)': round(sensor_data['total_energy_mWh'], 3),
-                    'Temp (°C)': sensor_data['temp'], 
-                    'Lux': sensor_data['lux'], 
-                    'Irradiance (W/m²)': sensor_data['watts']
-                }
-                sensor_data['log_records'].append(record)
+        # آپدیت مستقل هیستوری برای همه سنسورها (هر یک ثانیه یکبار)
+        current_time_str = datetime.now(tehran_tz).strftime("%H:%M:%S")
+        if sensor_data['last_time'] != current_time_str:
+            sensor_data['last_time'] = current_time_str
+            
+            sensor_data['timestamps'].append(current_time_str)
+            sensor_data['hist_voltage'].append(sensor_data['voltage'])
+            sensor_data['hist_current'].append(sensor_data['current'])
+            sensor_data['hist_power'].append(sensor_data['power'])
+            sensor_data['hist_temp'].append(sensor_data['temp'])
+            sensor_data['hist_lux'].append(sensor_data['lux'])
+            sensor_data['hist_watts'].append(sensor_data['watts'])
+            sensor_data['hist_energy'].append(sensor_data['total_energy_mWh'])
+            
+            record = {
+                'Time': current_time_str,
+                'Voltage (V)': sensor_data['voltage'], 'Current (mA)': sensor_data['current'],
+                'Power (mW)': sensor_data['power'], 'Energy (mWh)': round(sensor_data['total_energy_mWh'], 3),
+                'Temp (°C)': sensor_data['temp'], 'Lux': sensor_data['lux'], 'Irradiance (W/m²)': sensor_data['watts']
+            }
+            sensor_data['log_records'].append(record)
 
-                if len(sensor_data['timestamps']) > 20000:
-                    sensor_data['timestamps'].pop(0); sensor_data['hist_voltage'].pop(0)
-                    sensor_data['hist_current'].pop(0); sensor_data['hist_power'].pop(0)
-                    sensor_data['hist_temp'].pop(0); sensor_data['hist_lux'].pop(0)
-                    sensor_data['hist_watts'].pop(0); sensor_data['hist_energy'].pop(0)
-                    sensor_data['log_records'].pop(0)
+            if len(sensor_data['timestamps']) > 20000:
+                sensor_data['timestamps'].pop(0); sensor_data['hist_voltage'].pop(0)
+                sensor_data['hist_current'].pop(0); sensor_data['hist_power'].pop(0)
+                sensor_data['hist_temp'].pop(0); sensor_data['hist_lux'].pop(0)
+                sensor_data['hist_watts'].pop(0); sensor_data['hist_energy'].pop(0)
+                sensor_data['log_records'].pop(0)
     except:
         pass
 
-# 7. MQTT Init (تغییر نام برای پاکسازی کش شبکه قدیمی)
+# 7. MQTT Init (V4)
 @st.cache_resource
-def init_mqtt_v3():
+def init_mqtt_v4():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -310,19 +205,16 @@ def init_mqtt_v3():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt_v3()
+try: mqtt_client = init_mqtt_v4()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
 # Main UI Layout
 # ==========================================
 st.markdown("<h1>MPPT SOLAR MONITORING</h1>", unsafe_allow_html=True)
-
 col_left, col_right = st.columns([1, 1.8], gap="large")
 
-# ----------------- Left Column -----------------
 with col_left:
-    # وضعیت اتصال رو در بالای صفحه کنار ساعت نشون دادم تا متوجه بشید وصله یا نه
     mqtt_status_cls = "green" if sensor_data['mqtt_connected'] else "red"
     mqtt_status_txt = "Connected" if sensor_data['mqtt_connected'] else "Waiting..."
     
@@ -331,6 +223,7 @@ with col_left:
         <div class="header-item">📅 Date: <span class="header-highlight">{date_str}</span></div>
         <div class="header-item">⏰ Time: <span class="header-highlight">{time_str}</span></div>
         <div class="header-item">🌐 MQTT: <span class="header-highlight {mqtt_status_cls}">{mqtt_status_txt}</span></div>
+        <div class="header-item" style="color: #64748b;">📨 Msgs: <span class="header-highlight">{sensor_data['msg_count']}</span></div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -380,28 +273,14 @@ with col_left:
     if len(sensor_data['log_records']) > 0:
         df_logs = pd.DataFrame(sensor_data['log_records'])
         st.dataframe(df_logs.tail(3).iloc[::-1], use_container_width=True)
-        
         csv_data = df_logs.to_csv(index=False).encode('utf-8-sig')
-        st.download_button(
-            label="📥 Download CSV Archive",
-            data=csv_data,
-            file_name=f"solar_log_{date_str.replace('/','-')}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+        st.download_button(label="📥 Download CSV Archive", data=csv_data, file_name=f"solar_log_{date_str.replace('/','-')}.csv", mime="text/csv", use_container_width=True)
     else:
         st.info("Waiting for sensor data...")
-        
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ----------------- Right Column -----------------
 with col_right:
-    timeframe = st.radio(
-        label="Timeframe", 
-        options=["1 Min", "5 Mins", "15 Mins", "1 Hour", "12 Hours", "All-Time"],
-        horizontal=True, index=1, label_visibility="collapsed"
-    )
-
+    timeframe = st.radio(label="Timeframe", options=["1 Min", "5 Mins", "15 Mins", "1 Hour", "12 Hours", "All-Time"], horizontal=True, index=1, label_visibility="collapsed")
     limit_map = {"1 Min": 12, "5 Mins": 60, "15 Mins": 180, "1 Hour": 720, "12 Hours": 8640, "All-Time": None}
     point_limit = limit_map[timeframe]
 
@@ -419,24 +298,19 @@ with col_right:
     with chart_col_right:
         st.markdown("##### ⚡ Voltage (V)")
         draw_chart(sensor_data['hist_voltage'], sensor_data['timestamps'], "Voltage", "#2563eb", limit=point_limit)
-
         st.markdown("##### 🔋 Power (mW)")
         draw_chart(sensor_data['hist_power'], sensor_data['timestamps'], "Power", "#059669", limit=point_limit)
-
         st.markdown("##### 🔆 Irradiance (W/m²)")
         draw_chart(sensor_data['hist_watts'], sensor_data['timestamps'], "Irradiance", "#ea580c", limit=point_limit)
 
     with chart_col_left:
         st.markdown("##### 🔌 Current (mA)")
         draw_chart(sensor_data['hist_current'], sensor_data['timestamps'], "Current", "#d97706", limit=point_limit)
-
         st.markdown("##### ☀️ Illuminance (Lux)")
         draw_chart(sensor_data['hist_lux'], sensor_data['timestamps'], "Illuminance", "#ca8a04", limit=point_limit)
-
         st.markdown("##### ⚡ Energy (mWh)")
         draw_chart(sensor_data['hist_energy'], sensor_data['timestamps'], "Energy", "#10b981", limit=point_limit)
 
-# Live Update Refresh
 if live_update:
     time.sleep(3.5)
     st.rerun()
