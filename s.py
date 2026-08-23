@@ -5,6 +5,7 @@ import time
 import requests
 from datetime import datetime
 import pytz
+import jdatetime
 
 # 1. Page Configuration
 st.set_page_config(
@@ -210,10 +211,11 @@ def get_tehran_weather():
     except:
         return "28.0 °C"
 
-# 4. Date and Time (Standard format)
+# 4. Date and Time (Shamsi Date, English Text)
 tehran_tz = pytz.timezone('Asia/Tehran')
 now_tehran = datetime.now(tehran_tz)
-date_str = now_tehran.strftime("%Y-%m-%d")
+j_date = jdatetime.datetime.fromgregorian(datetime=now_tehran)
+date_str = j_date.strftime("%Y/%m/%d") # فرمت شمسی
 time_str = now_tehran.strftime("%H:%M:%S")
 tehran_weather = get_tehran_weather()
 
@@ -379,7 +381,7 @@ with col_left:
         st.download_button(
             label="📥 Download CSV Archive",
             data=csv_data,
-            file_name=f"solar_log_{date_str}.csv",
+            file_name=f"solar_log_{date_str.replace('/','-')}.csv",
             mime="text/csv",
             use_container_width=True
         )
