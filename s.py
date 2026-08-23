@@ -275,6 +275,7 @@ def on_message(client, userdata, msg):
             sensor_data['hist_watts'].append(sensor_data['watts'])
             sensor_data['hist_energy'].append(sensor_data['total_energy_mWh'])
             
+            # اصلاح عناوین جدول به زبان انگلیسی
             record = {
                 'Time': current_time_str,
                 'Voltage (V)': sensor_data['voltage'], 
@@ -283,7 +284,7 @@ def on_message(client, userdata, msg):
                 'Energy (mWh)': round(sensor_data['total_energy_mWh'], 3),
                 'Temp (°C)': sensor_data['temp'], 
                 'Lux': sensor_data['lux'], 
-                'Irradiance (W/m2)': sensor_data['watts']
+                'Irradiance (W/m²)': sensor_data['watts']
             }
             sensor_data['log_records'].append(record)
 
