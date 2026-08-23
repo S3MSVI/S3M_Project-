@@ -73,6 +73,8 @@ st.markdown("""
     }
     .header-item { color: #1e293b; font-size: 16px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Courier New', Courier, monospace !important; }
+    .header-highlight.green { color: #10b981 !important; }
+    .header-highlight.red { color: #ef4444 !important; }
 
     /* Live Data Box */
     .live-data-box {
@@ -219,18 +221,17 @@ date_str = j_date.strftime("%Y/%m/%d") # فرمت شمسی
 time_str = now_tehran.strftime("%H:%M:%S")
 tehran_weather = get_tehran_weather()
 
-# 5. Live Memory for Sensor Data (تغییر نام تابع برای ریست شدن کش و پاک شدن ستون‌های فارسی)
+# 5. Live Memory for Sensor Data (تغییر نام برای پاکسازی قطعی کش قدیمی)
 @st.cache_resource
-def get_sensor_data_v2():
+def get_mppt_data_v3():
     return {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
         'hist_voltage': [], 'hist_current': [], 'hist_power': [], 'hist_temp': [], 'hist_lux': [], 'hist_watts': [], 'hist_energy': [],
-        'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0,
-        'last_topic': '-', 'last_payload': '-'
+        'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
 
-sensor_data = get_sensor_data_v2()
+sensor_data = get_mppt_data_v3()
 
 # 6. MQTT Callbacks & Logic
 def on_connect(client, userdata, flags, rc, properties=None):
@@ -240,14 +241,10 @@ def on_connect(client, userdata, flags, rc, properties=None):
 def on_message(client, userdata, msg):
     topic = msg.topic.lower()
     payload = msg.payload.decode().strip('\x00').strip()
-    
     sensor_data['msg_count'] += 1
-    sensor_data['last_topic'] = topic
-    sensor_data['last_payload'] = payload
     
     try:
         value = float(payload)
-        current_time_str = datetime.now(tehran_tz).strftime("%H:%M:%S")
         sensor_name = topic.split('/')[-1]
         
         if sensor_name == "voltage": sensor_data['voltage'] = value
@@ -261,45 +258,47 @@ def on_message(client, userdata, msg):
             sensor_data['last_power_time'] = current_t
         elif sensor_name == "temperature": sensor_data['temp'] = value
         elif sensor_name == "lux": sensor_data['lux'] = value
-        elif sensor_name == "watts": sensor_data['watts'] = value
+        elif sensor_name == "watts": 
+            sensor_data['watts'] = value
             
-        if sensor_data['last_time'] != current_time_str:
-            sensor_data['last_time'] = current_time_str
-            
-            sensor_data['timestamps'].append(current_time_str)
-            sensor_data['hist_voltage'].append(sensor_data['voltage'])
-            sensor_data['hist_current'].append(sensor_data['current'])
-            sensor_data['hist_power'].append(sensor_data['power'])
-            sensor_data['hist_temp'].append(sensor_data['temp'])
-            sensor_data['hist_lux'].append(sensor_data['lux'])
-            sensor_data['hist_watts'].append(sensor_data['watts'])
-            sensor_data['hist_energy'].append(sensor_data['total_energy_mWh'])
-            
-            # ذخیره با نام‌های کاملاً انگلیسی
-            record = {
-                'Time': current_time_str,
-                'Voltage (V)': sensor_data['voltage'], 
-                'Current (mA)': sensor_data['current'],
-                'Power (mW)': sensor_data['power'], 
-                'Energy (mWh)': round(sensor_data['total_energy_mWh'], 3),
-                'Temp (°C)': sensor_data['temp'], 
-                'Lux': sensor_data['lux'], 
-                'Irradiance (W/m²)': sensor_data['watts']
-            }
-            sensor_data['log_records'].append(record)
+            # ثبت در هیستوری و جدول فقط زمانی که چرخه سنسورها کامل شد (روی وات)
+            current_time_str = datetime.now(tehran_tz).strftime("%H:%M:%S")
+            if sensor_data['last_time'] != current_time_str:
+                sensor_data['last_time'] = current_time_str
+                
+                sensor_data['timestamps'].append(current_time_str)
+                sensor_data['hist_voltage'].append(sensor_data['voltage'])
+                sensor_data['hist_current'].append(sensor_data['current'])
+                sensor_data['hist_power'].append(sensor_data['power'])
+                sensor_data['hist_temp'].append(sensor_data['temp'])
+                sensor_data['hist_lux'].append(sensor_data['lux'])
+                sensor_data['hist_watts'].append(sensor_data['watts'])
+                sensor_data['hist_energy'].append(sensor_data['total_energy_mWh'])
+                
+                record = {
+                    'Time': current_time_str,
+                    'Voltage (V)': sensor_data['voltage'], 
+                    'Current (mA)': sensor_data['current'],
+                    'Power (mW)': sensor_data['power'], 
+                    'Energy (mWh)': round(sensor_data['total_energy_mWh'], 3),
+                    'Temp (°C)': sensor_data['temp'], 
+                    'Lux': sensor_data['lux'], 
+                    'Irradiance (W/m²)': sensor_data['watts']
+                }
+                sensor_data['log_records'].append(record)
 
-            if len(sensor_data['timestamps']) > 20000:
-                sensor_data['timestamps'].pop(0); sensor_data['hist_voltage'].pop(0)
-                sensor_data['hist_current'].pop(0); sensor_data['hist_power'].pop(0)
-                sensor_data['hist_temp'].pop(0); sensor_data['hist_lux'].pop(0)
-                sensor_data['hist_watts'].pop(0); sensor_data['hist_energy'].pop(0)
-                sensor_data['log_records'].pop(0)
+                if len(sensor_data['timestamps']) > 20000:
+                    sensor_data['timestamps'].pop(0); sensor_data['hist_voltage'].pop(0)
+                    sensor_data['hist_current'].pop(0); sensor_data['hist_power'].pop(0)
+                    sensor_data['hist_temp'].pop(0); sensor_data['hist_lux'].pop(0)
+                    sensor_data['hist_watts'].pop(0); sensor_data['hist_energy'].pop(0)
+                    sensor_data['log_records'].pop(0)
     except:
         pass
 
-# 7. MQTT Init
+# 7. MQTT Init (تغییر نام برای پاکسازی کش شبکه قدیمی)
 @st.cache_resource
-def init_mqtt():
+def init_mqtt_v3():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -311,7 +310,7 @@ def init_mqtt():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt()
+try: mqtt_client = init_mqtt_v3()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
@@ -323,11 +322,15 @@ col_left, col_right = st.columns([1, 1.8], gap="large")
 
 # ----------------- Left Column -----------------
 with col_left:
+    # وضعیت اتصال رو در بالای صفحه کنار ساعت نشون دادم تا متوجه بشید وصله یا نه
+    mqtt_status_cls = "green" if sensor_data['mqtt_connected'] else "red"
+    mqtt_status_txt = "Connected" if sensor_data['mqtt_connected'] else "Waiting..."
+    
     st.markdown(f"""
     <div class="header-box">
         <div class="header-item">📅 Date: <span class="header-highlight">{date_str}</span></div>
         <div class="header-item">⏰ Time: <span class="header-highlight">{time_str}</span></div>
-        <div class="header-item">🌤️ Tehran: <span class="header-highlight">{tehran_weather}</span></div>
+        <div class="header-item">🌐 MQTT: <span class="header-highlight {mqtt_status_cls}">{mqtt_status_txt}</span></div>
     </div>
     """, unsafe_allow_html=True)
 
