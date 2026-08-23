@@ -44,7 +44,7 @@ st.markdown("""
         background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
         border-radius: 16px; padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.9);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); margin-bottom: 25px;
-        display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 12px;
+        display: flex; flex-direction: column; align-items: center; gap: 15px;
     }
     .header-item { color: #1e293b; font-size: 16px; font-weight: bold; }
     .header-highlight { color: #2563eb; font-weight: bold; font-family: 'Courier New', Courier, monospace !important; }
@@ -101,29 +101,32 @@ st.markdown("""
 st.sidebar.markdown("### ⚙️ Settings")
 live_update = st.sidebar.checkbox("🔄 Live Update", value=True)
 
+# 3. Weather Fetcher (Updated to include Humidity)
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
-        url = "https://api.open-meteo.com/v1/forecast?latitude=35.6892&longitude=51.3890&current=temperature_2m&current_weather=true"
+        url = "https://api.open-meteo.com/v1/forecast?latitude=35.6892&longitude=51.3890&current=temperature_2m,relative_humidity_2m"
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers, timeout=6)
         data = response.json()
-        if 'current' in data and 'temperature_2m' in data['current']: return f"{data['current']['temperature_2m']} °C"
-        elif 'current_weather' in data: return f"{data['current_weather']['temperature']} °C"
+        if 'current' in data:
+            temp = data['current']['temperature_2m']
+            hum = data['current']['relative_humidity_2m']
+            return f"{temp} °C", f"{hum} %"
     except:
         pass
-    return "28.0 °C"
+    return "28.0 °C", "35 %"
 
 tehran_tz = pytz.timezone('Asia/Tehran')
 now_tehran = datetime.now(tehran_tz)
 j_date = jdatetime.datetime.fromgregorian(datetime=now_tehran)
 date_str = j_date.strftime("%Y/%m/%d") 
 time_str = now_tehran.strftime("%H:%M:%S")
-tehran_weather = get_tehran_weather()
+tehran_temp, tehran_hum = get_tehran_weather()
 
-# 5. Live Memory (V4: Completely clear cache to fix frozen data)
+# 5. Live Memory (V5)
 @st.cache_resource
-def get_mppt_data_v4():
+def get_mppt_data_v5():
     return {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
@@ -131,9 +134,9 @@ def get_mppt_data_v4():
         'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
 
-sensor_data = get_mppt_data_v4()
+sensor_data = get_mppt_data_v5()
 
-# 6. MQTT Logic (Fix logic for updating charts immediately)
+# 6. MQTT Logic 
 def on_connect(client, userdata, flags, rc, properties=None):
     sensor_data['mqtt_connected'] = True
     client.subscribe("my_powerplant/#")
@@ -160,7 +163,6 @@ def on_message(client, userdata, msg):
         elif sensor_name == "lux": sensor_data['lux'] = value
         elif sensor_name == "watts": sensor_data['watts'] = value
             
-        # آپدیت مستقل هیستوری برای همه سنسورها (هر یک ثانیه یکبار)
         current_time_str = datetime.now(tehran_tz).strftime("%H:%M:%S")
         if sensor_data['last_time'] != current_time_str:
             sensor_data['last_time'] = current_time_str
@@ -191,9 +193,9 @@ def on_message(client, userdata, msg):
     except:
         pass
 
-# 7. MQTT Init (V4)
+# 7. MQTT Init (V5)
 @st.cache_resource
-def init_mqtt_v4():
+def init_mqtt_v5():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -205,7 +207,7 @@ def init_mqtt_v4():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt_v4()
+try: mqtt_client = init_mqtt_v5()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
@@ -218,12 +220,19 @@ with col_left:
     mqtt_status_cls = "green" if sensor_data['mqtt_connected'] else "red"
     mqtt_status_txt = "Connected" if sensor_data['mqtt_connected'] else "Waiting..."
     
+    # اضافه شدن ردیف بالا مخصوص دما و رطوبت
     st.markdown(f"""
     <div class="header-box">
-        <div class="header-item">📅 Date: <span class="header-highlight">{date_str}</span></div>
-        <div class="header-item">⏰ Time: <span class="header-highlight">{time_str}</span></div>
-        <div class="header-item">🌐 MQTT: <span class="header-highlight {mqtt_status_cls}">{mqtt_status_txt}</span></div>
-        <div class="header-item" style="color: #64748b;">📨 Msgs: <span class="header-highlight">{sensor_data['msg_count']}</span></div>
+        <div style="display: flex; justify-content: center; gap: 40px; width: 100%; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+            <div class="header-item">🌤️ Tehran Temp: <span class="header-highlight">{tehran_temp}</span></div>
+            <div class="header-item">💧 Humidity: <span class="header-highlight">{tehran_hum}</span></div>
+        </div>
+        <div style="display: flex; justify-content: space-around; width: 100%; flex-wrap: wrap; gap: 12px; padding-top: 5px;">
+            <div class="header-item">📅 Date: <span class="header-highlight">{date_str}</span></div>
+            <div class="header-item">⏰ Time: <span class="header-highlight">{time_str}</span></div>
+            <div class="header-item">🌐 MQTT: <span class="header-highlight {mqtt_status_cls}">{mqtt_status_txt}</span></div>
+            <div class="header-item" style="color: #64748b;">📨 Msgs: <span class="header-highlight">{sensor_data['msg_count']}</span></div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
