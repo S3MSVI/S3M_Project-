@@ -219,9 +219,9 @@ date_str = j_date.strftime("%Y/%m/%d") # فرمت شمسی
 time_str = now_tehran.strftime("%H:%M:%S")
 tehran_weather = get_tehran_weather()
 
-# 5. Live Memory for Sensor Data
+# 5. Live Memory for Sensor Data (تغییر نام تابع برای ریست شدن کش و پاک شدن ستون‌های فارسی)
 @st.cache_resource
-def get_sensor_data():
+def get_sensor_data_v2():
     return {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
@@ -230,7 +230,7 @@ def get_sensor_data():
         'last_topic': '-', 'last_payload': '-'
     }
 
-sensor_data = get_sensor_data()
+sensor_data = get_sensor_data_v2()
 
 # 6. MQTT Callbacks & Logic
 def on_connect(client, userdata, flags, rc, properties=None):
@@ -275,7 +275,7 @@ def on_message(client, userdata, msg):
             sensor_data['hist_watts'].append(sensor_data['watts'])
             sensor_data['hist_energy'].append(sensor_data['total_energy_mWh'])
             
-            # اصلاح عناوین جدول به زبان انگلیسی
+            # ذخیره با نام‌های کاملاً انگلیسی
             record = {
                 'Time': current_time_str,
                 'Voltage (V)': sensor_data['voltage'], 
