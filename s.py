@@ -6,6 +6,7 @@ import requests
 from datetime import datetime
 import pytz
 import jdatetime
+import math
 
 # 1. Page Configuration
 st.set_page_config(
@@ -15,19 +16,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. CSS Styling (Minimalist, LTR, Sharp Edges)
+# 2. Base CSS Styling (Minimalist, LTR, Sharp Edges)
+# (Dynamic background is removed from here and injected later based on time)
 st.markdown("""
 <style>
     * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
     .stApp, [data-testid="stHeader"] { background-color: transparent !important; }
-    
-    [data-testid="stAppViewContainer"] { 
-        background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(240, 248, 255, 0.85)), url('https://images.unsplash.com/photo-1509391365360-2e959784a276?q=85&w=2560&auto=format&fit=crop') !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-attachment: fixed !important;
-        background-repeat: no-repeat !important;
-    }
 
     h1 {
         font-family: 'Times New Roman', Tahoma, serif !important;
@@ -101,7 +95,7 @@ st.markdown("""
 st.sidebar.markdown("### ⚙️ Settings")
 live_update = st.sidebar.checkbox("🔄 Live Update", value=True)
 
-# 3. Weather Fetcher (Updated to include Humidity)
+# 3. Weather Fetcher
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
@@ -117,6 +111,7 @@ def get_tehran_weather():
         pass
     return "28.0 °C", "35 %"
 
+# 4. Time, Date, and Dynamic Background Calculation
 tehran_tz = pytz.timezone('Asia/Tehran')
 now_tehran = datetime.now(tehran_tz)
 j_date = jdatetime.datetime.fromgregorian(datetime=now_tehran)
@@ -124,9 +119,67 @@ date_str = j_date.strftime("%Y/%m/%d")
 time_str = now_tehran.strftime("%H:%M:%S")
 tehran_temp, tehran_hum = get_tehran_weather()
 
-# 5. Live Memory (V5)
+# ==========================================
+# Dynamic Sun/Moon & Sky Background Engine
+# ==========================================
+hour = now_tehran.hour
+minute = now_tehran.minute
+time_in_hours = hour + minute / 60.0
+
+if 5 <= time_in_hours <= 19:
+    # --- DAYTIME (Sun Arc) ---
+    progress = (time_in_hours - 5) / 14.0  # 0.0 @ 5am | 0.5 @ 12pm | 1.0 @ 7pm
+    sun_x = 10 + (80 * progress)           # Moves from X:10% to X:90%
+    sun_y = 90 - (80 * math.sin(math.pi * progress)) # Arc: Y:90% -> 10% -> 90%
+    
+    if 5 <= time_in_hours < 7.5:
+        # Sunrise Colors
+        sky_bg = "linear-gradient(to bottom, #ff7e5f, #feb47b)"
+        sun_color = "rgba(255, 200, 0, 1)"
+    elif 7.5 <= time_in_hours < 16.5:
+        # Midday Colors
+        sky_bg = "linear-gradient(to bottom, #4facfe, #00f2fe)"
+        sun_color = "rgba(255, 255, 255, 1)"
+    else:
+        # Sunset Colors
+        sky_bg = "linear-gradient(to bottom, #fc4a1a, #f7b733)"
+        sun_color = "rgba(255, 100, 0, 1)"
+        
+    celestial_body = f"radial-gradient(circle at {sun_x:.1f}% {sun_y:.1f}%, {sun_color} 0%, rgba(255,255,255,0) 25%)"
+else:
+    # --- NIGHTTIME (Moon Arc) ---
+    if time_in_hours > 19:
+        progress = (time_in_hours - 19) / 10.0
+    else:
+        progress = (time_in_hours + 5) / 10.0
+        
+    moon_x = 10 + (80 * progress)
+    moon_y = 90 - (80 * math.sin(math.pi * progress))
+    
+    sky_bg = "linear-gradient(to bottom, #0f2027, #203a43)"
+    celestial_body = f"radial-gradient(circle at {moon_x:.1f}% {moon_y:.1f}%, rgba(200, 220, 255, 0.9) 0%, rgba(255,255,255,0) 15%)"
+
+# Inject Dynamic CSS
+dynamic_bg_css = f"""
+<style>
+[data-testid="stAppViewContainer"] {{
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.65), rgba(240, 248, 255, 0.85)), 
+        {celestial_body}, 
+        {sky_bg} !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+    transition: background 1s ease-in-out;
+}}
+</style>
+"""
+st.markdown(dynamic_bg_css, unsafe_allow_html=True)
+
+
+# 5. Live Memory (V6)
 @st.cache_resource
-def get_mppt_data_v5():
+def get_mppt_data_v6():
     return {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
@@ -134,7 +187,7 @@ def get_mppt_data_v5():
         'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
 
-sensor_data = get_mppt_data_v5()
+sensor_data = get_mppt_data_v6()
 
 # 6. MQTT Logic 
 def on_connect(client, userdata, flags, rc, properties=None):
@@ -193,9 +246,9 @@ def on_message(client, userdata, msg):
     except:
         pass
 
-# 7. MQTT Init (V5)
+# 7. MQTT Init
 @st.cache_resource
-def init_mqtt_v5():
+def init_mqtt_v6():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -207,7 +260,7 @@ def init_mqtt_v5():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt_v5()
+try: mqtt_client = init_mqtt_v6()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
@@ -220,7 +273,6 @@ with col_left:
     mqtt_status_cls = "green" if sensor_data['mqtt_connected'] else "red"
     mqtt_status_txt = "Connected" if sensor_data['mqtt_connected'] else "Waiting..."
     
-    # اضافه شدن ردیف بالا مخصوص دما و رطوبت
     st.markdown(f"""
     <div class="header-box">
         <div style="display: flex; justify-content: center; gap: 40px; width: 100%; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
