@@ -6,7 +6,7 @@ import requests
 from datetime import datetime
 import pytz
 import jdatetime
-import base64
+import math
 import os
 
 # 1. Page Configuration
@@ -17,11 +17,20 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Base CSS Styling (Minimalist, LTR, Sharp Edges)
+# 2. Base CSS Styling
 st.markdown("""
 <style>
     * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
     .stApp, [data-testid="stHeader"] { background-color: transparent !important; }
+
+    /* Bright Background Image */
+    [data-testid="stAppViewContainer"] { 
+        background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(240, 248, 255, 0.6)), url('Gemini_Generated_Image_qlhpm3qlhpm3qlhp.jpg') !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+    }
 
     h1 {
         font-family: 'Times New Roman', Tahoma, serif !important;
@@ -95,7 +104,7 @@ st.markdown("""
 st.sidebar.markdown("### ⚙️ Settings")
 live_update = st.sidebar.checkbox("🔄 Live Update", value=True)
 
-# 3. Weather Fetcher 
+# 3. Weather Fetcher
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
@@ -111,7 +120,6 @@ def get_tehran_weather():
         pass
     return "28.0 °C", "35 %"
 
-# 4. Date and Time Data
 tehran_tz = pytz.timezone('Asia/Tehran')
 now_tehran = datetime.now(tehran_tz)
 j_date = jdatetime.datetime.fromgregorian(datetime=now_tehran)
@@ -120,71 +128,73 @@ time_str = now_tehran.strftime("%H:%M:%S")
 tehran_temp, tehran_hum = get_tehran_weather()
 
 # ==========================================
-# 5. DYNAMIC SPOTLIGHT BACKGROUND ENGINE
+# 4. DYNAMIC SUN ORB ENGINE (CSS)
 # ==========================================
-@st.cache_data
-def get_bg_base64():
-    img_path = "Gemini_Generated_Image_qlhpm3qlhpm3qlhp.jpg"
-    if os.path.exists(img_path):
-        with open(img_path, "rb") as img_file:
-            return f"data:image/jpeg;base64,{base64.b64encode(img_file.read()).decode()}"
-    return ""
-
-bg_img_data = get_bg_base64()
 hour = now_tehran.hour
-num_slices = 14
-slice_width = 100.0 / num_slices
+minute = now_tehran.minute
+time_in_hours = hour + minute / 60.0
 
-if 5 <= hour <= 19:
-    # Day Time Spotlight Calculation
-    active_index = hour - 5
-    if active_index >= num_slices: active_index = num_slices - 1
+if 5 <= time_in_hours <= 19:
+    progress = (time_in_hours - 5) / 14.0 
+    sun_x = 10 + (80 * progress)          
+    sun_y = 85 - (75 * math.sin(math.pi * progress)) 
     
-    start_pct = active_index * slice_width
-    end_pct = (active_index + 1) * slice_width
-    
-    # Creates a dark mask overlay that leaves ONLY the current hour transparent (bright)
-    spotlight_overlay = f"""
-        linear-gradient(to right,
-        rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.75) {start_pct}%,
-        rgba(255, 255, 255, 0.05) {start_pct}%, rgba(255, 255, 255, 0.05) {end_pct}%,
-        rgba(0, 0, 0, 0.75) {end_pct}%, rgba(0, 0, 0, 0.75) 100%)
+    sun_orb_css = f"""
+    <div style="
+        position: fixed;
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,223,0,0.8) 30%, transparent 70%);
+        box-shadow: 0 0 120px 60px rgba(255, 200, 0, 0.4);
+        left: {sun_x}%;
+        top: {sun_y}%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        pointer-events: none;
+    "></div>
     """
-else:
-    # Night Time (Darken everything)
-    spotlight_overlay = "linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9))"
-
-if bg_img_data:
-    bg_css = f"background-image: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), {spotlight_overlay}, url('{bg_img_data}') !important;"
-else:
-    bg_css = "background-color: #f8fafc !important;"
-
-st.markdown(f'''
-<style>
-[data-testid="stAppViewContainer"] {{
-    {bg_css}
-    background-size: cover !important;
-    background-position: center center !important;
-    background-attachment: fixed !important;
-    transition: background 1s ease-in-out;
-}}
-</style>
-''', unsafe_allow_html=True)
+    st.markdown(sun_orb_css, unsafe_allow_html=True)
 
 
-# 6. Live Memory (V7 Cache Clear)
+# ==========================================
+# 5. Live Memory with AUTO-BACKUP RECOVERY
+# ==========================================
 @st.cache_resource
-def get_mppt_data_v7():
-    return {
+def get_mppt_data_v8():
+    data = {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
         'hist_voltage': [], 'hist_current': [], 'hist_power': [], 'hist_temp': [], 'hist_lux': [], 'hist_watts': [], 'hist_energy': [],
         'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
+    # ریکاوری خودکار داده‌ها در صورت ریبوت شدن سرور یا ویرایش کد
+    if os.path.exists('mppt_backup.csv'):
+        try:
+            df = pd.read_csv('mppt_backup.csv').tail(20000)
+            data['timestamps'] = df['Time'].tolist()
+            data['hist_voltage'] = df['Voltage (V)'].tolist()
+            data['hist_current'] = df['Current (mA)'].tolist()
+            data['hist_power'] = df['Power (mW)'].tolist()
+            data['hist_energy'] = df['Energy (mWh)'].tolist()
+            data['hist_temp'] = df['Temp (°C)'].tolist()
+            data['hist_lux'] = df['Lux'].tolist()
+            data['hist_watts'] = df['Irradiance (W/m²)'].tolist()
+            data['log_records'] = df.to_dict('records')
+            if not df.empty:
+                data['total_energy_mWh'] = df['Energy (mWh)'].iloc[-1]
+                data['voltage'] = df['Voltage (V)'].iloc[-1]
+                data['current'] = df['Current (mA)'].iloc[-1]
+                data['power'] = df['Power (mW)'].iloc[-1]
+                data['temp'] = df['Temp (°C)'].iloc[-1]
+                data['lux'] = df['Lux'].iloc[-1]
+                data['watts'] = df['Irradiance (W/m²)'].iloc[-1]
+        except: pass
+    return data
 
-sensor_data = get_mppt_data_v7()
+sensor_data = get_mppt_data_v8()
 
-# 7. MQTT Logic 
+# 6. MQTT Logic & Auto-Save
 def on_connect(client, userdata, flags, rc, properties=None):
     sensor_data['mqtt_connected'] = True
     client.subscribe("my_powerplant/#")
@@ -232,6 +242,12 @@ def on_message(client, userdata, msg):
             }
             sensor_data['log_records'].append(record)
 
+            # بک‌آپ‌گیری خودکار در فایل CSV دائمی
+            try:
+                df_save = pd.DataFrame([record])
+                df_save.to_csv('mppt_backup.csv', mode='a', header=not os.path.exists('mppt_backup.csv'), index=False)
+            except: pass
+
             if len(sensor_data['timestamps']) > 20000:
                 sensor_data['timestamps'].pop(0); sensor_data['hist_voltage'].pop(0)
                 sensor_data['hist_current'].pop(0); sensor_data['hist_power'].pop(0)
@@ -241,9 +257,9 @@ def on_message(client, userdata, msg):
     except:
         pass
 
-# 8. MQTT Init
+# 7. MQTT Init
 @st.cache_resource
-def init_mqtt_v7():
+def init_mqtt_v8():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -255,7 +271,7 @@ def init_mqtt_v7():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt_v7()
+try: mqtt_client = init_mqtt_v8()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
@@ -322,15 +338,18 @@ with col_left:
     st.markdown("""
     <div class='save-box'>
         <div style='text-align: center; color: #10b981; font-size: 16px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;'>
-            🟢 Live Logging Active
+            🟢 Live Auto-Backup Active
         </div>
     """, unsafe_allow_html=True)
     
     if len(sensor_data['log_records']) > 0:
         df_logs = pd.DataFrame(sensor_data['log_records'])
         st.dataframe(df_logs.tail(3).iloc[::-1], use_container_width=True)
-        csv_data = df_logs.to_csv(index=False).encode('utf-8-sig')
-        st.download_button(label="📥 Download CSV Archive", data=csv_data, file_name=f"solar_log_{date_str.replace('/','-')}.csv", mime="text/csv", use_container_width=True)
+        
+        # دکمه دانلود از فایل ذخیره‌شده اصلی (تا همه دیتای قدیمی هم داخلش باشه)
+        if os.path.exists('mppt_backup.csv'):
+            with open('mppt_backup.csv', 'rb') as f:
+                st.download_button(label="📥 Download CSV Archive", data=f, file_name=f"solar_log_{date_str.replace('/','-')}.csv", mime="text/csv", use_container_width=True)
     else:
         st.info("Waiting for sensor data...")
     st.markdown("</div>", unsafe_allow_html=True)
