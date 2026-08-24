@@ -23,15 +23,6 @@ st.markdown("""
     * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
     .stApp, [data-testid="stHeader"] { background-color: transparent !important; }
 
-    /* Bright Background Image */
-    [data-testid="stAppViewContainer"] { 
-        background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(240, 248, 255, 0.6)), url('Gemini_Generated_Image_qlhpm3qlhpm3qlhp.jpg') !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-attachment: fixed !important;
-        background-repeat: no-repeat !important;
-    }
-
     h1 {
         font-family: 'Times New Roman', Tahoma, serif !important;
         font-size: 38px !important; color: #0f172a !important; font-weight: bold !important; 
@@ -62,7 +53,7 @@ st.markdown("""
     .live-data-title {
         text-align: center; font-size: 20px; font-weight: bold; color: #0f172a;
         margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;
-        text-transform: uppercase; letter-spacing: 1px;
+        letter-spacing: 1px;
     }
 
     .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
@@ -74,11 +65,11 @@ st.markdown("""
         grid-column: span 2; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.25));
         border: 1px solid rgba(16, 185, 129, 0.4);
     }
-    .metric-title { color: #475569; font-size: 14px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+    .metric-title { color: #475569; font-size: 14px; font-weight: bold; margin-bottom: 5px; }
     .metric-val { color: #0f172a; font-size: 24px; font-weight: bold; font-family: 'Courier New', Courier, monospace !important; display: inline-block; }
     .energy-val { color: #047857; font-size: 28px; }
 
-    h5 { font-size: 16px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-top: 15px !important; margin-bottom: 8px !important; text-transform: uppercase; }
+    h5 { font-size: 16px !important; color: #1e293b !important; font-weight: bold !important; text-align: center !important; margin-top: 15px !important; margin-bottom: 8px !important; }
     
     div[data-testid="stRadio"] { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; margin-bottom: 15px; }
     div[role="radiogroup"] {
@@ -128,47 +119,78 @@ time_str = now_tehran.strftime("%H:%M:%S")
 tehran_temp, tehran_hum = get_tehran_weather()
 
 # ==========================================
-# 4. DYNAMIC SUN ORB ENGINE (CSS)
+# 4. DYNAMIC SUN & SKY ENGINE
 # ==========================================
 hour = now_tehran.hour
 minute = now_tehran.minute
 time_in_hours = hour + minute / 60.0
 
-if 5 <= time_in_hours <= 19:
-    progress = (time_in_hours - 5) / 14.0 
-    sun_x = 10 + (80 * progress)          
-    sun_y = 85 - (75 * math.sin(math.pi * progress)) 
+sunrise = 5.0
+sunset = 19.0
+day_length = sunset - sunrise
+
+if sunrise <= time_in_hours <= sunset:
+    progress = (time_in_hours - sunrise) / day_length 
     
+    # تنظیم مسیر خورشید (فلت‌تر شده تا زیاد بالا نرود)
+    sun_x = 5 + (90 * progress)          
+    sun_y = 80 - (50 * math.sin(math.pi * progress)) 
+    
+    # تنظیم نور صفحه بسته به ساعت روز
+    if progress < 0.2: # 5 تا 8 صبح (تاریک به روشن)
+        opacity = 0.8 - (progress * 2.5) 
+        sky_overlay = f"linear-gradient(rgba(10, 15, 30, {opacity}), rgba(255, 120, 50, {opacity + 0.1}))"
+        sun_color = "rgba(255, 150, 0, 0.9)"
+    elif progress > 0.8: # 4 تا 7 عصر (روشن به تاریک)
+        p_sunset = progress - 0.8
+        opacity = 0.3 + (p_sunset * 2.5) 
+        sky_overlay = f"linear-gradient(rgba(10, 15, 30, {opacity}), rgba(255, 100, 50, {opacity + 0.1}))"
+        sun_color = "rgba(255, 100, 0, 0.9)"
+    else: # 8 صبح تا 4 عصر (کاملاً روشن)
+        opacity = 0.3
+        sky_overlay = f"linear-gradient(rgba(255, 255, 255, {opacity}), rgba(135, 206, 235, {opacity + 0.1}))"
+        sun_color = "rgba(255, 255, 220, 1)"
+        
     sun_orb_css = f"""
     <div style="
-        position: fixed;
-        width: 250px;
-        height: 250px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,223,0,0.8) 30%, transparent 70%);
-        box-shadow: 0 0 120px 60px rgba(255, 200, 0, 0.4);
-        left: {sun_x}%;
-        top: {sun_y}%;
-        transform: translate(-50%, -50%);
-        z-index: -1;
-        pointer-events: none;
+        position: fixed; width: 180px; height: 180px; border-radius: 50%;
+        background: radial-gradient(circle, {sun_color} 0%, rgba(255,223,0,0.5) 30%, transparent 70%);
+        box-shadow: 0 0 100px 40px rgba(255, 200, 0, 0.3);
+        left: {sun_x}%; top: {sun_y}%; transform: translate(-50%, -50%);
+        z-index: -1; pointer-events: none;
     "></div>
     """
     st.markdown(sun_orb_css, unsafe_allow_html=True)
+else:
+    # زمان شب
+    sky_overlay = "linear-gradient(rgba(10, 15, 30, 0.85), rgba(10, 15, 30, 0.95))"
+
+# اعمال پس‌زمینه
+bg_css = f"""
+<style>
+[data-testid="stAppViewContainer"] {{
+    background-image: {sky_overlay}, url('Gemini_Generated_Image_qlhpm3qlhpm3qlhp.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+    transition: background 1s ease-in-out;
+}}
+</style>
+"""
+st.markdown(bg_css, unsafe_allow_html=True)
 
 
 # ==========================================
-# 5. Live Memory with AUTO-BACKUP RECOVERY
+# 5. Live Memory with AUTO-BACKUP
 # ==========================================
 @st.cache_resource
-def get_mppt_data_v8():
+def get_mppt_data_v9():
     data = {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
         'hist_voltage': [], 'hist_current': [], 'hist_power': [], 'hist_temp': [], 'hist_lux': [], 'hist_watts': [], 'hist_energy': [],
         'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
-    # ریکاوری خودکار داده‌ها در صورت ریبوت شدن سرور یا ویرایش کد
     if os.path.exists('mppt_backup.csv'):
         try:
             df = pd.read_csv('mppt_backup.csv').tail(20000)
@@ -192,9 +214,9 @@ def get_mppt_data_v8():
         except: pass
     return data
 
-sensor_data = get_mppt_data_v8()
+sensor_data = get_mppt_data_v9()
 
-# 6. MQTT Logic & Auto-Save
+# 6. MQTT Logic 
 def on_connect(client, userdata, flags, rc, properties=None):
     sensor_data['mqtt_connected'] = True
     client.subscribe("my_powerplant/#")
@@ -242,7 +264,6 @@ def on_message(client, userdata, msg):
             }
             sensor_data['log_records'].append(record)
 
-            # بک‌آپ‌گیری خودکار در فایل CSV دائمی
             try:
                 df_save = pd.DataFrame([record])
                 df_save.to_csv('mppt_backup.csv', mode='a', header=not os.path.exists('mppt_backup.csv'), index=False)
@@ -259,7 +280,7 @@ def on_message(client, userdata, msg):
 
 # 7. MQTT Init
 @st.cache_resource
-def init_mqtt_v8():
+def init_mqtt_v9():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -271,7 +292,7 @@ def init_mqtt_v8():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt_v8()
+try: mqtt_client = init_mqtt_v9()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
@@ -301,7 +322,7 @@ with col_left:
 
     st.markdown(f"""
     <div class="live-data-box">
-        <div class="live-data-title">LIVE SYSTEM DATA</div>
+        <div class="live-data-title">Live System Data</div>
         <div class="metrics-grid">
             <div class="metric-item energy-item">
                 <div class="metric-title">⚡ Total Energy</div>
@@ -337,7 +358,7 @@ with col_left:
 
     st.markdown("""
     <div class='save-box'>
-        <div style='text-align: center; color: #10b981; font-size: 16px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase;'>
+        <div style='text-align: center; color: #10b981; font-size: 16px; font-weight: bold; margin-bottom: 10px;'>
             🟢 Live Auto-Backup Active
         </div>
     """, unsafe_allow_html=True)
@@ -346,7 +367,6 @@ with col_left:
         df_logs = pd.DataFrame(sensor_data['log_records'])
         st.dataframe(df_logs.tail(3).iloc[::-1], use_container_width=True)
         
-        # دکمه دانلود از فایل ذخیره‌شده اصلی (تا همه دیتای قدیمی هم داخلش باشه)
         if os.path.exists('mppt_backup.csv'):
             with open('mppt_backup.csv', 'rb') as f:
                 st.download_button(label="📥 Download CSV Archive", data=f, file_name=f"solar_log_{date_str.replace('/','-')}.csv", mime="text/csv", use_container_width=True)
@@ -372,19 +392,19 @@ with col_right:
 
     with chart_col_right:
         st.markdown("##### ⚡ Voltage (V)")
-        draw_chart(sensor_data['hist_voltage'], sensor_data['timestamps'], "Voltage", "#2563eb", limit=point_limit)
+        draw_chart(sensor_data['hist_voltage'], sensor_data['timestamps'], "Voltage (V)", "#2563eb", limit=point_limit)
         st.markdown("##### 🔋 Power (mW)")
-        draw_chart(sensor_data['hist_power'], sensor_data['timestamps'], "Power", "#059669", limit=point_limit)
+        draw_chart(sensor_data['hist_power'], sensor_data['timestamps'], "Power (mW)", "#059669", limit=point_limit)
         st.markdown("##### 🔆 Irradiance (W/m²)")
-        draw_chart(sensor_data['hist_watts'], sensor_data['timestamps'], "Irradiance", "#ea580c", limit=point_limit)
+        draw_chart(sensor_data['hist_watts'], sensor_data['timestamps'], "Irradiance (W/m²)", "#ea580c", limit=point_limit)
 
     with chart_col_left:
         st.markdown("##### 🔌 Current (mA)")
-        draw_chart(sensor_data['hist_current'], sensor_data['timestamps'], "Current", "#d97706", limit=point_limit)
+        draw_chart(sensor_data['hist_current'], sensor_data['timestamps'], "Current (mA)", "#d97706", limit=point_limit)
         st.markdown("##### ☀️ Illuminance (Lux)")
-        draw_chart(sensor_data['hist_lux'], sensor_data['timestamps'], "Illuminance", "#ca8a04", limit=point_limit)
+        draw_chart(sensor_data['hist_lux'], sensor_data['timestamps'], "Illuminance (Lux)", "#ca8a04", limit=point_limit)
         st.markdown("##### ⚡ Energy (mWh)")
-        draw_chart(sensor_data['hist_energy'], sensor_data['timestamps'], "Energy", "#10b981", limit=point_limit)
+        draw_chart(sensor_data['hist_energy'], sensor_data['timestamps'], "Energy (mWh)", "#10b981", limit=point_limit)
 
 if live_update:
     time.sleep(3.5)
