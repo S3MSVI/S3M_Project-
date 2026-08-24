@@ -6,7 +6,8 @@ import requests
 from datetime import datetime
 import pytz
 import jdatetime
-import math
+import base64
+import os
 
 # 1. Page Configuration
 st.set_page_config(
@@ -17,7 +18,6 @@ st.set_page_config(
 )
 
 # 2. Base CSS Styling (Minimalist, LTR, Sharp Edges)
-# (Dynamic background is removed from here and injected later based on time)
 st.markdown("""
 <style>
     * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
@@ -95,7 +95,7 @@ st.markdown("""
 st.sidebar.markdown("### ⚙️ Settings")
 live_update = st.sidebar.checkbox("🔄 Live Update", value=True)
 
-# 3. Weather Fetcher
+# 3. Weather Fetcher 
 @st.cache_data(ttl=300)
 def get_tehran_weather():
     try:
@@ -111,7 +111,7 @@ def get_tehran_weather():
         pass
     return "28.0 °C", "35 %"
 
-# 4. Time, Date, and Dynamic Background Calculation
+# 4. Date and Time Data
 tehran_tz = pytz.timezone('Asia/Tehran')
 now_tehran = datetime.now(tehran_tz)
 j_date = jdatetime.datetime.fromgregorian(datetime=now_tehran)
@@ -120,66 +120,61 @@ time_str = now_tehran.strftime("%H:%M:%S")
 tehran_temp, tehran_hum = get_tehran_weather()
 
 # ==========================================
-# Dynamic Sun/Moon & Sky Background Engine
+# 5. DYNAMIC SPOTLIGHT BACKGROUND ENGINE
 # ==========================================
+@st.cache_data
+def get_bg_base64():
+    img_path = "Gemini_Generated_Image_qlhpm3qlhpm3qlhp.jpg"
+    if os.path.exists(img_path):
+        with open(img_path, "rb") as img_file:
+            return f"data:image/jpeg;base64,{base64.b64encode(img_file.read()).decode()}"
+    return ""
+
+bg_img_data = get_bg_base64()
 hour = now_tehran.hour
-minute = now_tehran.minute
-time_in_hours = hour + minute / 60.0
+num_slices = 14
+slice_width = 100.0 / num_slices
 
-if 5 <= time_in_hours <= 19:
-    # --- DAYTIME (Sun Arc) ---
-    progress = (time_in_hours - 5) / 14.0  # 0.0 @ 5am | 0.5 @ 12pm | 1.0 @ 7pm
-    sun_x = 10 + (80 * progress)           # Moves from X:10% to X:90%
-    sun_y = 90 - (80 * math.sin(math.pi * progress)) # Arc: Y:90% -> 10% -> 90%
+if 5 <= hour <= 19:
+    # Day Time Spotlight Calculation
+    active_index = hour - 5
+    if active_index >= num_slices: active_index = num_slices - 1
     
-    if 5 <= time_in_hours < 7.5:
-        # Sunrise Colors
-        sky_bg = "linear-gradient(to bottom, #ff7e5f, #feb47b)"
-        sun_color = "rgba(255, 200, 0, 1)"
-    elif 7.5 <= time_in_hours < 16.5:
-        # Midday Colors
-        sky_bg = "linear-gradient(to bottom, #4facfe, #00f2fe)"
-        sun_color = "rgba(255, 255, 255, 1)"
-    else:
-        # Sunset Colors
-        sky_bg = "linear-gradient(to bottom, #fc4a1a, #f7b733)"
-        sun_color = "rgba(255, 100, 0, 1)"
-        
-    celestial_body = f"radial-gradient(circle at {sun_x:.1f}% {sun_y:.1f}%, {sun_color} 0%, rgba(255,255,255,0) 25%)"
+    start_pct = active_index * slice_width
+    end_pct = (active_index + 1) * slice_width
+    
+    # Creates a dark mask overlay that leaves ONLY the current hour transparent (bright)
+    spotlight_overlay = f"""
+        linear-gradient(to right,
+        rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.75) {start_pct}%,
+        rgba(255, 255, 255, 0.05) {start_pct}%, rgba(255, 255, 255, 0.05) {end_pct}%,
+        rgba(0, 0, 0, 0.75) {end_pct}%, rgba(0, 0, 0, 0.75) 100%)
+    """
 else:
-    # --- NIGHTTIME (Moon Arc) ---
-    if time_in_hours > 19:
-        progress = (time_in_hours - 19) / 10.0
-    else:
-        progress = (time_in_hours + 5) / 10.0
-        
-    moon_x = 10 + (80 * progress)
-    moon_y = 90 - (80 * math.sin(math.pi * progress))
-    
-    sky_bg = "linear-gradient(to bottom, #0f2027, #203a43)"
-    celestial_body = f"radial-gradient(circle at {moon_x:.1f}% {moon_y:.1f}%, rgba(200, 220, 255, 0.9) 0%, rgba(255,255,255,0) 15%)"
+    # Night Time (Darken everything)
+    spotlight_overlay = "linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9))"
 
-# Inject Dynamic CSS
-dynamic_bg_css = f"""
+if bg_img_data:
+    bg_css = f"background-image: linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.2)), {spotlight_overlay}, url('{bg_img_data}') !important;"
+else:
+    bg_css = "background-color: #f8fafc !important;"
+
+st.markdown(f'''
 <style>
 [data-testid="stAppViewContainer"] {{
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.65), rgba(240, 248, 255, 0.85)), 
-        {celestial_body}, 
-        {sky_bg} !important;
+    {bg_css}
     background-size: cover !important;
     background-position: center center !important;
     background-attachment: fixed !important;
     transition: background 1s ease-in-out;
 }}
 </style>
-"""
-st.markdown(dynamic_bg_css, unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
 
-# 5. Live Memory (V6)
+# 6. Live Memory (V7 Cache Clear)
 @st.cache_resource
-def get_mppt_data_v6():
+def get_mppt_data_v7():
     return {
         'voltage': 0.0, 'current': 0.0, 'power': 0.0, 'temp': 0.0, 'lux': 0.0, 'watts': 0.0,
         'total_energy_mWh': 0.0, 'last_power_time': 0.0,
@@ -187,9 +182,9 @@ def get_mppt_data_v6():
         'timestamps': [], 'log_records': [], 'last_time': '', 'mqtt_connected': False, 'msg_count': 0
     }
 
-sensor_data = get_mppt_data_v6()
+sensor_data = get_mppt_data_v7()
 
-# 6. MQTT Logic 
+# 7. MQTT Logic 
 def on_connect(client, userdata, flags, rc, properties=None):
     sensor_data['mqtt_connected'] = True
     client.subscribe("my_powerplant/#")
@@ -246,9 +241,9 @@ def on_message(client, userdata, msg):
     except:
         pass
 
-# 7. MQTT Init
+# 8. MQTT Init
 @st.cache_resource
-def init_mqtt_v6():
+def init_mqtt_v7():
     try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     except: 
         try: client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -260,7 +255,7 @@ def init_mqtt_v6():
     client.loop_start()
     return client
 
-try: mqtt_client = init_mqtt_v6()
+try: mqtt_client = init_mqtt_v7()
 except Exception as e: st.error(f"Error: {e}")
 
 # ==========================================
